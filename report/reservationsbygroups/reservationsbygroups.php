@@ -133,7 +133,6 @@ function resetSearch() {
 function getObjectsByGroupAndEntity($group_id, $entity) {
    global $DB, $CFG_GLPI;
    $display_header = false;
-   $current_time = date();
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
          unset($CFG_GLPI["asset_types"][$key]);
