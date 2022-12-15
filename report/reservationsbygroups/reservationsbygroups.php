@@ -137,40 +137,42 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
+      if ($itemtype == 'Computer'){
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-      $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
-         'FROM' => 'glpi_reservations',
-         'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
-         ]]]], 'data');
+        $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
+            'FROM' => 'glpi_reservations',
+            'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
+            ]]]], 'data');
 
-      $query = $DB->request(['SELECT'    => [$item->getTable().'.id', 'name', 'groups_id', 'serial',
-                                             'otherserial', 'immo_number', 'suppliers_id', 'buy_date'],
-                             'FROM'      => $item->getTable(),
-                             'LEFT JOIN' => ['glpi_infocoms' => ['FKEY' => [$item->getTable() => 'id',
-                                                                            'glpi_infocoms'   => 'items_id'],
-                                                                           ['itemtype' => $itemtype]]],
-                             'LEFT JOIN'  => [$inner_query => ['FKEY'=> [$item->getTable()=>'id',
-                                                                          'data' => 'items_id']]],
-                              'WHERE'     => ['groups_id'                      => $group_id,
-                                              $item->getTable().'.entities_id' => $entity,
-                                              'is_template'                    => 0,
-                                              'is_deleted'                     => 0]]);
+        $query = $DB->request(['SELECT'    => [$item->getTable().'.id', 'name', 'groups_id', 'serial',
+                                                'otherserial', 'immo_number', 'suppliers_id', 'buy_date'],
+                                'FROM'      => $item->getTable(),
+                                'LEFT JOIN' => ['glpi_infocoms' => ['FKEY' => [$item->getTable() => 'id',
+                                                                                'glpi_infocoms'   => 'items_id'],
+                                                                            ['itemtype' => $itemtype]]],
+                                'LEFT JOIN'  => [$inner_query => ['FKEY'=> [$item->getTable()=>'id',
+                                                                            'data' => 'items_id']]],
+                                'WHERE'     => ['groups_id'                      => $group_id,
+                                                $item->getTable().'.entities_id' => $entity,
+                                                'is_template'                    => 0,
+                                                'is_deleted'                     => 0]]);
 
-      if (count($query) > 0) {
-         if (!$display_header) {
-            echo "<br><table class='tab_cadre_fixehov'>";
-            echo "<tr><th>" .__('Type'). "</th><th>" .__('Name'). "</th>";
-            echo "<th>" .__('Serial number'). "</th><th>" . __('Inventory number'). "</th>";
-            echo "<th>" .__('Immobilization number')."</th>";
-            echo "<th>" .__('Supplier'). "</th><th>" .__('Date of purchase'). "</th>";
-            echo "<th>" .__('Reserved?')."</th>";
-            echo "</tr>";
-            $display_header = true;
-         }
-         displayUserDevices($itemtype, $query);
-      }
-   }
+        if (count($query) > 0) {
+            if (!$display_header) {
+                echo "<br><table class='tab_cadre_fixehov'>";
+                echo "<tr><th>" .__('Type'). "</th><th>" .__('Name'). "</th>";
+                echo "<th>" .__('Serial number'). "</th><th>" . __('Inventory number'). "</th>";
+                echo "<th>" .__('Immobilization number')."</th>";
+                echo "<th>" .__('Supplier'). "</th><th>" .__('Date of purchase'). "</th>";
+                echo "<th>" .__('Reserved?')."</th>";
+                echo "</tr>";
+                $display_header = true;
+            }
+            displayUserDevices($itemtype, $query);
+        }
+     }
+    }
    }
    echo "</table>";
 }
