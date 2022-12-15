@@ -174,7 +174,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
              ) 
          ) AS `data` ON (glpi_computers.id = data.items_id)
        WHERE   
-         `groups_id` = '1'                            
+         `groups_id` = $group_id                            
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0'");
