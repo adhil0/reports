@@ -145,18 +145,39 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
             'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
             ]]]], 'data');
 
-        $query = $DB->request(['SELECT'    => [$item->getTable().'.id', 'name', 'groups_id', 'serial',
-                                                'otherserial', 'immo_number', 'suppliers_id', 'buy_date'],
-                                'FROM'      => $item->getTable(),
-                                'LEFT JOIN' => ['glpi_infocoms' => ['FKEY' => [$item->getTable() => 'id',
-                                                                                'glpi_infocoms'   => 'items_id'],
-                                                                            ['itemtype' => $itemtype]]],
-                                'LEFT JOIN'  => [$inner_query => ['FKEY'=> [$item->getTable()=>'id',
-                                                                            'data' => 'items_id']]],
-                                'WHERE'     => ['groups_id'                      => $group_id,
-                                                $item->getTable().'.entities_id' => $entity,
-                                                'is_template'                    => 0,
-                                                'is_deleted'                     => 0]]);
+       $query = $DB->request("SELECT
+         `glpi_computers`.`id`,
+         `name`,                                      
+         `groups_id`,                 
+         `serial`,
+         `otherserial`,
+         `immo_number`,               
+         `suppliers_id`,
+         `buy_date`,
+         `begin`,                                     
+         `end`                 
+       FROM                     
+         `glpi_computers`                                           
+         LEFT JOIN `glpi_infocoms` ON (
+           `glpi_computers`.`id` = `glpi_infocoms`.`items_id`
+           AND (`itemtype` = 'Monitor')
+         )     
+         LEFT JOIN (                                  
+           SELECT               
+             `items_id`,              
+             `begin`,                                                                
+             `end`
+           FROM                                       
+             `glpi_reservations`
+             LEFT JOIN `glpi_reservationitems` ON (
+               `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
+             ) 
+         ) AS `data` ON (glpi_computers.id = data.items_id)
+       WHERE   
+         `groups_id` = '1'                            
+         AND `glpi_computers`.`entities_id` = '0'
+         AND `is_template` = '0'
+         AND `is_deleted` = '0'");
 
         if (count($query) > 0) {
             if (!$display_header) {
