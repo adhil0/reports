@@ -145,7 +145,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
             'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
             ]]]], 'data');
 
-       $query = $DB->request("SELECT
+       $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
          `glpi_computers`.`id`,
          `name`,                                      
          `groups_id`,                 
@@ -177,7 +177,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `groups_id` = $group_id                            
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
-         AND `is_deleted` = '0'");
+         AND `is_deleted` = '0', GROUP BY id");
 
         if (count($query) > 0) {
             if (!$display_header) {
@@ -260,8 +260,8 @@ function displayUserDevices($type, $result) {
       }
       echo "</td><td class='center'>";
 
-      if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
-         if ($data["end"] >= $now && $data["begin"] <= $now) {
+      if (isset ($data["latest_reservation"]) && !empty ($data["latest_reservation"]) ) {
+         if ($data["latest_reservation"] >= $now) {
             echo "Yes";
          }
          else {
