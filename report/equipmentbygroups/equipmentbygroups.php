@@ -2,22 +2,17 @@
 /**
  -------------------------------------------------------------------------
   LICENSE
-
  This file is part of Reports plugin for GLPI.
-
  Reports is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
  Reports is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  GNU Affero General Public License for more details.
-
  You should have received a copy of the GNU Affero General Public License
  along with Reports. If not, see <http://www.gnu.org/licenses/>.
-
  @package   reports
  @authors    Nelly Mahu-Lasson, Remi Collet
  @copyright Copyright (c) 2009-2022 Reports plugin team
@@ -132,64 +127,26 @@ function resetSearch() {
 **/
 function getObjectsByGroupAndEntity($group_id, $entity) {
    global $DB, $CFG_GLPI;
+
    $display_header = false;
-   $current_time = date();
+
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-      $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
-         'FROM' => 'glpi_reservations',
-         'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
-         ]]]], 'data');
-
       $query = $DB->request(['SELECT'    => [$item->getTable().'.id', 'name', 'groups_id', 'serial',
                                              'otherserial', 'immo_number', 'suppliers_id', 'buy_date'],
                              'FROM'      => $item->getTable(),
                              'LEFT JOIN' => ['glpi_infocoms' => ['FKEY' => [$item->getTable() => 'id',
                                                                             'glpi_infocoms'   => 'items_id'],
                                                                            ['itemtype' => $itemtype]]],
-                             'LEFT JOIN'  => [$inner_query => ['FKEY'=> [$item->getTable()=>'id',
-                                                                          'data' => 'items_id']]],
                               'WHERE'     => ['groups_id'                      => $group_id,
                                               $item->getTable().'.entities_id' => $entity,
                                               'is_template'                    => 0,
                                               'is_deleted'                     => 0]]);
-      //  $query = $DB->request("SELECT
-      //    `glpi_monitors`.`id`,
-      //    `name`,                                      
-      //    `groups_id`,                 
-      //    `serial`,
-      //    `otherserial`,
-      //    `immo_number`,               
-      //    `suppliers_id`,
-      //    `buy_date`,
-      //    `begin`,                                     
-      //    `end`                 
-      //  FROM                     
-      //    `glpi_monitors`                                           
-      //    LEFT JOIN `glpi_infocoms` ON (
-      //      `glpi_monitors`.`id` = `glpi_infocoms`.`items_id`
-      //      AND (`itemtype` = 'Monitor')
-      //    )     
-      //    LEFT JOIN (                                  
-      //      SELECT               
-      //        `items_id`,              
-      //        `begin`,                                                                
-      //        `end`
-      //      FROM                                       
-      //        `glpi_reservations`
-      //        LEFT JOIN `glpi_reservationitems` ON (
-      //          `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
-      //        ) 
-      //    ) AS `data` ON (glpi_monitors.id = data.items_id)
-      //  WHERE   
-      //    `groups_id` = '1'                            
-      //    AND `glpi_monitors`.`entities_id` = '0'
-      //    AND `is_template` = '0'
-      //    AND `is_deleted` = '0'");
+
       if (count($query) > 0) {
          if (!$display_header) {
             echo "<br><table class='tab_cadre_fixehov'>";
@@ -197,7 +154,6 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
             echo "<th>" .__('Serial number'). "</th><th>" . __('Inventory number'). "</th>";
             echo "<th>" .__('Immobilization number')."</th>";
             echo "<th>" .__('Supplier'). "</th><th>" .__('Date of purchase'). "</th>";
-            echo "<th>" .__('Reserved?')."</th>";
             echo "</tr>";
             $display_header = true;
          }
@@ -217,8 +173,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 **/
 function displayUserDevices($type, $result) {
    global $DB, $CFG_GLPI;
-   $time = time();
-   $now = date("Y-m-d H:i:s", $time);
+
    $item = new $type();
    foreach ($result as $data) {
       $link = $data["name"];
@@ -267,18 +222,6 @@ function displayUserDevices($type, $result) {
          echo Html::convDate($data["buy_date"]);
       } else {
          echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-
-      if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
-         if ($data["end"] >= $now && $data["begin"] <= $now) {
-            echo "Yes";
-         }
-         else {
-            echo "No";
-         }
-      } else {
-         echo 'No';
       }
       echo "</td></tr>";
    }
