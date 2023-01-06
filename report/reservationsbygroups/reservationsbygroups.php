@@ -190,7 +190,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 
 
 /**
- * Display all device for a group
+ * Display all device for a group 
  *
  * @param $type      the objet type
  * @param $result    the resultset of all the devices found
