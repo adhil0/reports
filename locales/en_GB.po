@@ -110,7 +110,7 @@ msgstr "Last inventory date"
 msgid "equipmentbygroups_report_title"
 msgstr " List all devices of a group, ordered by users"
 
-#. TRANS: The name of the report = List all devices of a group, ordered by
+#. TRANS: The name of the report = List all computers of a group, ordered by
 #. reservations
 #: report/reservationsbygroups/reservationsbygroups.php:40
 msgid "reservationsbygroups_report_title"
