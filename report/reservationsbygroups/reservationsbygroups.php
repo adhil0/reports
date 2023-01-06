@@ -150,18 +150,10 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `name`,                                      
          `groups_id`,                 
          `serial`,
-         `otherserial`,
-         `immo_number`,               
-         `suppliers_id`,
-         `buy_date`,
          `begin`,                                     
          `end`                 
        FROM                     
          `glpi_computers`                                           
-         LEFT JOIN `glpi_infocoms` ON (
-           `glpi_computers`.`id` = `glpi_infocoms`.`items_id`
-           AND (`itemtype` = 'Monitor')
-         )     
          LEFT JOIN (                                  
            SELECT               
              `items_id`,              
@@ -182,11 +174,9 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
         if (count($query) > 0) {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th>" .__('Type'). "</th><th>" .__('Name'). "</th>";
-                echo "<th>" .__('Serial number'). "</th><th>" . __('Inventory number'). "</th>";
-                echo "<th>" .__('Immobilization number')."</th>";
-                echo "<th>" .__('Supplier'). "</th><th>" .__('Date of purchase'). "</th>";
-                echo "<th>" .__('Reserved?')."</th>";
+                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<th class='center'>" .__('Serial number'). "</th>";
+                echo "<th class='center'>" .__('Reserved?')."</th>";
                 echo "</tr>";
                 $display_header = true;
             }
@@ -227,34 +217,6 @@ function displayUserDevices($type, $result) {
       echo "<td class='center'>";
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-
-      if (isset ($data["otherserial"]) && !empty ($data["otherserial"])) {
-         echo $data["otherserial"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-
-      if (isset ($data["immo_number"]) && !empty ($data["immo_number"])) {
-         echo $data["immo_number"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-
-      if (isset ($data["suppliers_id"]) && !empty ($data["suppliers_id"])) {
-         echo Dropdown::getDropdownName("glpi_suppliers", $data["suppliers_id"]);
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-
-      if (isset ($data["buy_date"]) && !empty ($data["buy_date"])) {
-         echo Html::convDate($data["buy_date"]);
       } else {
          echo '&nbsp;';
       }
