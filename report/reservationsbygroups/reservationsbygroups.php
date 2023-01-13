@@ -147,7 +147,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 
        $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
          `glpi_computers`.`id`,
-         `name`,                                      
+         `glpi_computers`.`name`,                                      
          `groups_id`,                 
          `serial`,
          `begin`,                                     
