@@ -195,16 +195,15 @@ function displayUserDevices($type, $result) {
       } else {
          echo '&nbsp;';
       }
-      echo "</td><td class='center'>";
 
-      echo "<td class='center'>";
+      echo "</td><td class='center'>";
       if (isset ($data["comment"]) && !empty ($data["comment"])) {
          echo $data["comment"];
       } else {
          echo '&nbsp;';
       }
+      
       echo "</td><td class='center'>";
-      echo "<td class='center'>";
       if (isset ($data["completename"]) && !empty ($data["completename"])) {
          echo $data["completename"];
       } else {
