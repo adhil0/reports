@@ -174,7 +174,9 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `groups_id` = $group_id                            
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
-         AND `is_deleted` = '0' GROUP BY id
+         AND `is_deleted` = '0' 
+         AND glpi_computers.id NOT in (SELECT items_id from glpi_reservationitems)
+       GROUP BY id
        HAVING
          `latest_reservation` is NULL
          OR `latest_reservation` < CURDATE()");
