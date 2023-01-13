@@ -185,6 +185,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reserved?')."</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
+                echo "<th class='center'>" .__('Reservation Duration'). "</th>";
                 echo "</tr>";
                 $display_header = true;
             }
@@ -246,9 +247,17 @@ function displayUserDevices($type, $result) {
       } else {
          echo 'No';
       }
+
       echo "</td><td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
          echo $data["reservation_comment"];
+      } else {
+         echo '&nbsp;';
+      }
+
+      echo "</td><td class='center'>";
+      if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
+         echo $data["begin"] - $data["end"];
       } else {
          echo '&nbsp;';
       }
