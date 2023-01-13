@@ -145,7 +145,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
             'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
             ]]]], 'data');
 
-       $query = $DB->request("SELECT glpi_computers.id, glpi_computers.name, groups_id, glpi_computers.comment, glpi_computers.states_id, glpi_states.completename from glpi_computers JOIN glpi_states WHERE groups_id = 5 AND glpi_computers.states_id = glpi_states.id AND glpi_computers.id NOT in (SELECT items_id from glpi_reservationitems)");
+       $query = $DB->request("SELECT glpi_computers.id, glpi_computers.name, groups_id, glpi_computers.comment, glpi_computers.states_id, glpi_states.completename from glpi_computers JOIN glpi_states WHERE groups_id = $group_id AND glpi_computers.states_id = glpi_states.id AND glpi_computers.id NOT in (SELECT items_id from glpi_reservationitems)");
 
         if (count($query) > 0) {
             if (!$display_header) {
