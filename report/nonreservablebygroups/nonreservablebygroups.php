@@ -34,9 +34,9 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 
 include ("../../../../inc/includes.php");
 
-includeLocales("reservationsbygroups");
+includeLocales("nonreservablebygroups");
 //TRANS: The name of the report = List all devices of a group, ordered by users
-Html::header(__('reservationsbygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
+Html::header(__('nonreservablebygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
 
@@ -91,7 +91,7 @@ function displaySearchForm() {
 
    // Display Reset search
    echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports')."/report/reservationsbygroups/reservationsbygroups.php?reset_search=reset_search'>".
+   echo "<a href='" . Plugin::getPhpDir('reports')."/report/nonreservablebygroups/nonreservablebygroups.php?reset_search=reset_search'>".
          "<img title='" . __s('Blank') . "' alt='" . __s('Blank') . "' src='" .
          $CFG_GLPI["root_doc"] . "/pics/reset.png' class='calendrier'></a>";
    echo "</td>";
@@ -145,38 +145,15 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
             'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
             ]]]], 'data');
 
-       $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
-         `glpi_computers`.`id`,
-         `name`,                                      
-         `groups_id`,                 
-         `serial`,
-         `begin`,                                     
-         `end`                 
-       FROM                     
-         `glpi_computers`                                           
-         LEFT JOIN (                                  
-           SELECT               
-             `items_id`,              
-             `begin`,                                                                
-             `end`
-           FROM                                       
-             `glpi_reservations`
-             LEFT JOIN `glpi_reservationitems` ON (
-               `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
-             ) 
-         ) AS `data` ON (glpi_computers.id = data.items_id)
-       WHERE   
-         `groups_id` = $group_id                            
-         AND `glpi_computers`.`entities_id` = '0'
-         AND `is_template` = '0'
-         AND `is_deleted` = '0' GROUP BY id");
+       $query = $DB->request("SELECT glpi_computers.id, glpi_computers.name, groups_id, glpi_computers.comment, glpi_computers.states_id, glpi_states.completename from glpi_computers JOIN glpi_states WHERE groups_id = 5 AND glpi_computers.states_id = glpi_states.id AND glpi_computers.id NOT in (SELECT items_id from glpi_reservationitems)");
 
         if (count($query) > 0) {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
                 echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
-                echo "<th class='center'>" .__('Reserved?')."</th>";
+                echo "<th class='center'>" .__('Comment')."</th>";
+                echo "<th class='center'>" .__('Status')."</th>";
                 echo "</tr>";
                 $display_header = true;
             }
@@ -197,8 +174,6 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 **/
 function displayUserDevices($type, $result) {
    global $DB, $CFG_GLPI;
-   $time = time();
-   $now = date("Y-m-d H:i:s", $time);
    $item = new $type();
    foreach ($result as $data) {
       $link = $data["name"];
@@ -222,15 +197,18 @@ function displayUserDevices($type, $result) {
       }
       echo "</td><td class='center'>";
 
-      if (isset ($data["latest_reservation"]) && !empty ($data["latest_reservation"]) ) {
-         if ($data["latest_reservation"] >= $now) {
-            echo "Yes";
-         }
-         else {
-            echo "No";
-         }
+      echo "<td class='center'>";
+      if (isset ($data["comment"]) && !empty ($data["comment"])) {
+         echo $data["comment"];
       } else {
-         echo 'No';
+         echo '&nbsp;';
+      }
+      echo "</td><td class='center'>";
+      echo "<td class='center'>";
+      if (isset ($data["completename"]) && !empty ($data["completename"])) {
+         echo $data["completename"];
+      } else {
+         echo '&nbsp;';
       }
       echo "</td></tr>";
    }
