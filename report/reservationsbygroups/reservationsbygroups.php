@@ -151,14 +151,17 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `groups_id`,                 
          `serial`,
          `begin`,                                     
-         `end`                 
+         `end`,
+         `data`.`comment` AS `reservation_comment`, 
+         `glpi_computers`.`comment` AS `computer_comment`                  
        FROM                     
          `glpi_computers`                                           
          LEFT JOIN (                                  
            SELECT               
              `items_id`,              
              `begin`,                                                                
-             `end`
+             `end`,
+             `glpi_reservations`.`comment`
            FROM                                       
              `glpi_reservations`
              LEFT JOIN `glpi_reservationitems` ON (
@@ -179,7 +182,9 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                 echo "<br><table class='tab_cadre_fixehov'>";
                 echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
+                echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reserved?')."</th>";
+                echo "<th class='center'>" .__('Reservation Comment'). "</th>";
                 echo "</tr>";
                 $display_header = true;
             }
@@ -224,7 +229,13 @@ function displayUserDevices($type, $result) {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
+      if (isset ($data["computer_comment"]) && !empty ($data["computer_commnet"])) {
+         echo $data["computer_comment"];
+      } else {
+         echo '&nbsp;';
+      }
 
+      echo "</td><td class='center'>";
       if (isset ($data["latest_reservation"]) && !empty ($data["latest_reservation"]) ) {
          if ($data["latest_reservation"] >= $now) {
             echo "Yes";
@@ -234,6 +245,12 @@ function displayUserDevices($type, $result) {
          }
       } else {
          echo 'No';
+      }
+      echo "</td><td class='center'>";
+      if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
+         echo $data["reservation_comment"];
+      } else {
+         echo '&nbsp;';
       }
       echo "</td></tr>";
    }
