@@ -257,7 +257,7 @@ function displayUserDevices($type, $result) {
 
       echo "</td><td class='center'>";
       if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
-         echo $data["begin"] - $data["end"];
+         echo $data["begin"] . "-" . $data["end"];
       } else {
          echo '&nbsp;';
       }
