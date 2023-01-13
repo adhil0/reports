@@ -153,7 +153,8 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `begin`,                                     
          `end`,
          `data`.`comment` AS `reservation_comment`, 
-         `glpi_computers`.`comment` AS `computer_comment`                  
+         `glpi_computers`.`comment` AS `computer_comment`,
+         `glpi_states`.`completename`               
        FROM                     
          `glpi_computers`                                           
          LEFT JOIN (                                  
@@ -168,6 +169,8 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
              ) 
          ) AS `data` ON (glpi_computers.id = data.items_id)
+         LEFT JOIN glpi_states 
+            ON glpi_computers.states_id = glpi_states.id
        WHERE   
          `groups_id` = $group_id                            
          AND `glpi_computers`.`entities_id` = '0'
@@ -182,6 +185,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                 echo "<br><table class='tab_cadre_fixehov'>";
                 echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
+                echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reserved?')."</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
@@ -229,8 +233,16 @@ function displayUserDevices($type, $result) {
       } else {
          echo '&nbsp;';
       }
+
       echo "</td><td class='center'>";
-      if (isset ($data["computer_comment"]) && !empty ($data["computer_commnet"])) {
+      if (isset ($data["completename"]) && !empty ($data["completename"])) {
+         echo $data["completename"];
+      } else {
+         echo '&nbsp;';
+      }
+
+      echo "</td><td class='center'>";
+      if (isset ($data["computer_comment"]) && !empty ($data["computer_comment"])) {
          echo $data["computer_comment"];
       } else {
          echo '&nbsp;';
