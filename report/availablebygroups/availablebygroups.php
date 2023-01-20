@@ -34,9 +34,9 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 
 include ("../../../../inc/includes.php");
 
-includeLocales("reservationsbygroups");
+includeLocales("availablebygroups");
 //TRANS: The name of the report = List all devices of a group, ordered by users
-Html::header(__('reservationsbygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
+Html::header(__('availablebygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
 
