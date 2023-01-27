@@ -119,7 +119,7 @@ msgstr " List all computers of a group, ordered by users"
 #. TRANS: The name of the report = List all computers of a group, ordered by
 #. reservations
 #: report/availablebygroups/availablebygroups.php:42
-msgid "availablebygroups_report_title"
+msgid "List all computers of a group that are available for reservation"
 msgstr "List all computers of a group that are available for reservation"
 
 #. TRANS: The name of the report = Number of equipments by location
