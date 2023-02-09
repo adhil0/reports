@@ -114,6 +114,11 @@ msgstr ""
 msgid "reservationsbygroups_report_title"
 msgstr ""
 
+#. TRANS: The name of the report = List all devices of a group, ordered by reservations
+#: report/availablebygroups/availablebygroups.php:40
+msgid "availablebygroups_report_title"
+msgstr ""
+
 #. TRANS: The name of the report = Number of equipments by location
 #: report/equipmentbylocation/equipmentbylocation.php:38
 msgid "equipmentbylocation_report_title"
