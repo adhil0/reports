@@ -274,7 +274,7 @@ function displayUserDevices($type, $result) {
         if ($data["latest_reservation"] >= $now) {
             echo $data["begin"] . "-" . $data["end"];
         } else {
-            echo 'nbsp;';
+            echo '&nbsp;';
         }
       } else {
          echo '&nbsp;';
