@@ -260,14 +260,22 @@ function displayUserDevices($type, $result) {
 
       echo "</td><td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
+        if ($data["latest_reservation"] >= $now) {
          echo $data["reservation_comment"];
+        } else {
+            echo '&nbsp;';
+        }
       } else {
          echo '&nbsp;';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
-         echo $data["begin"] . "-" . $data["end"];
+        if ($data["latest_reservation"] >= $now) {
+            echo $data["begin"] . "-" . $data["end"];
+        } else {
+            echo 'nbsp;';
+        }
       } else {
          echo '&nbsp;';
       }
