@@ -172,7 +172,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
        WHERE   
-         `groups_id` = 5                       
+         `groups_id` = $group_id                       
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0' GROUP BY id
