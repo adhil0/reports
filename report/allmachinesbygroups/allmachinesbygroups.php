@@ -35,7 +35,7 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 include ("../../../../inc/includes.php");
 
 includeLocales("allmachinessbygroups");
-//TRANS: The name of the report = List all devices of a group, ordered by users
+//TRANS: The name of the report = All Computers
 Html::header(__('allmachinesbygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();

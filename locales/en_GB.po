@@ -110,17 +110,25 @@ msgstr "Last inventory date"
 msgid "equipmentbygroups_report_title"
 msgstr " List all devices of a group, ordered by users"
 
-#. TRANS: The name of the report = List all computers of a group, ordered by
-#. reservations
+#. TRANS: The name of the report = Reserved Computers
 #: report/reservationsbygroups/reservationsbygroups.php:42
 msgid "reservationsbygroups_report_title"
-msgstr " List all computers of a group, ordered by users"
+msgstr "Reserved Computers"
 
-#. TRANS: The name of the report = List all computers of a group, ordered by
-#. reservations
+#. TRANS: The name of the report = Available Computers
 #: report/availablebygroups/availablebygroups.php:42
 msgid "availablebygroups_report_title"
-msgstr "List all computers of a group that are available for reservation"
+msgstr "Available Computers"
+
+#. TRANS: The name of the report = Unavailable Computers
+#: report/nonreservablebygroups/nonreservablebygroups.php:42
+msgid "nonreservablebygroups_report_title"
+msgstr "Unavailable Computers"
+
+#. TRANS: The name of the report = All Computers
+#: report/allmachinesbygroups/allmachinesbygroups.php:42
+msgid "reservationsbygroups_report_title"
+msgstr "All Computers"
 
 #. TRANS: The name of the report = Number of equipments by location
 #: report/equipmentbylocation/equipmentbylocation.php:38

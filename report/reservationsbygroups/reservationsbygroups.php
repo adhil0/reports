@@ -35,7 +35,7 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 include ("../../../../inc/includes.php");
 
 includeLocales("reservationsbygroups");
-//TRANS: The name of the report = List all devices of a group, ordered by users
+//TRANS: The name of the report = Reserved Computers
 Html::header(__('reservationsbygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
@@ -172,13 +172,10 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
        WHERE   
-         `groups_id` = $group_id                            
+         `groups_id` = $group_id                       
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
-         AND `is_deleted` = '0' GROUP BY id
-       HAVING
-         `latest_reservation` is NOT NULL
-         AND `latest_reservation` >= CURDATE()");
+         AND `is_deleted` = '0' GROUP BY id");
 
         if (count($query) > 0) {
             if (!$display_header) {
