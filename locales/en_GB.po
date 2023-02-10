@@ -127,7 +127,7 @@ msgstr "Unavailable Computers"
 
 #. TRANS: The name of the report = All Computers
 #: report/allmachinesbygroups/allmachinesbygroups.php:42
-msgid "reservationsbygroups_report_title"
+msgid "allmachinesbygroups_report_title"
 msgstr "All Computers"
 
 #. TRANS: The name of the report = Number of equipments by location
