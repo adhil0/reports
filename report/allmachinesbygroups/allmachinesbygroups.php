@@ -154,7 +154,9 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `end`,
          `data`.`comment` AS `reservation_comment`, 
          `glpi_computers`.`comment` AS `computer_comment`,
-         `glpi_states`.`completename`               
+         `glpi_states`.`completename`,
+         `data`.`realname`,
+	      `data`.`firstname`                
        FROM                     
          `glpi_computers`                                           
          LEFT JOIN (                                  
@@ -162,12 +164,18 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
              `items_id`,              
              `begin`,                                                                
              `end`,
-             `glpi_reservations`.`comment`
+             `glpi_reservations`.`comment`,
+	          `realname`,
+		       `firstname`
            FROM                                       
              `glpi_reservations`
              LEFT JOIN `glpi_reservationitems` ON (
                `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
              ) 
+             LEFT JOIN `glpi_users` ON (
+               `glpi_reservations`.`users_id` = `glpi_users`.`id`
+             )
+
          ) AS `data` ON (glpi_computers.id = data.items_id)
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
@@ -186,6 +194,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                 echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reserved?')."</th>";
+                echo "<th class='center'>" .__('Reservation Made By'). "</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
                 echo "<th class='center'>" .__('Reservation Duration'). "</th>";
                 echo "</tr>";
@@ -258,6 +267,12 @@ function displayUserDevices($type, $result) {
          echo 'No';
       }
 
+      echo "</td><td class='center'>";
+      if (isset ($data["realname"]) && !empty ($data["firstname"])) {
+         echo $data["firstname"]." ".$data["realname"];
+      } else {
+         echo '&nbsp;';
+      }
       echo "</td><td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
         if ($data["latest_reservation"] >= $now) {
