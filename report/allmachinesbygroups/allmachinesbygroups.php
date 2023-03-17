@@ -180,7 +180,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
        WHERE   
-         `groups_id` = $group_id                       
+         `groups_id` = 5                      
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0' GROUP BY id
@@ -268,11 +268,16 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["realname"]) && !empty ($data["firstname"])) {
-         echo $data["firstname"]." ".$data["realname"];
+      if (isset ($data["realname"]) && !empty ($data["realname"]) && isset ($data["firstname"]) && !empty ($data["firstname"])) {
+         if ($data["latest_reservation"] >= $now) {
+            echo $data["firstname"]." ".$data["realname"];
+         } else {
+            echo '&nbsp;';
+         }
       } else {
          echo '&nbsp;';
       }
+      
       echo "</td><td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
         if ($data["latest_reservation"] >= $now) {

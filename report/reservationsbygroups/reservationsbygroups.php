@@ -270,8 +270,12 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["realname"]) && !empty ($data["firstname"])) {
-         echo $data["firstname"]." ".$data["realname"];
+      if (isset ($data["realname"]) && !empty ($data["realname"]) && isset ($data["firstname"]) && !empty ($data["firstname"])) {
+         if ($data["latest_reservation"] >= $now) {
+            echo $data["firstname"]." ".$data["realname"];
+         } else {
+            echo '&nbsp;';
+         }
       } else {
          echo '&nbsp;';
       }
