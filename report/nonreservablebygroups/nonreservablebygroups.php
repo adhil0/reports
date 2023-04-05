@@ -97,7 +97,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "<td>";
-   echo Html::submit('', ['value' => 'Valider', 'class' => 'btn btn-primary']);
+   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
    echo "</td>";
 
    echo "</tr></table>";
