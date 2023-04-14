@@ -176,8 +176,8 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `serial`,
          `begin`,                                     
          `end`,
-         TIMESTAMPDIFF(MINUTE,{$_GET['date1']},{$_GET['date2']}) as diff,
-           SUM(CASE WHEN begin<={$_GET['date2']} AND end >= {$_GET['date1']} THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,{$_GET['date1']}),LEAST(end,{$_GET['date2']}))
+         TIMESTAMPDIFF(MINUTE,'{$_GET['date1']}','{$_GET['date2']}') as diff,
+           SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
                 ELSE 0
         END) AS true_diff
        FROM                     
