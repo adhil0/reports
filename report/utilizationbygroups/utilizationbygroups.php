@@ -269,11 +269,7 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["true_diff"]) && !empty ($data["true_diff"])) {
-         echo $data["true_diff"] / $data["diff"];
-      } else {
-         echo '&nbsp;';
-      }
+      echo $data["true_diff"] / $data["diff"];
       echo "</td></tr>";
    }
 }
