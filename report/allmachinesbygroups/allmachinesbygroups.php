@@ -91,9 +91,8 @@ function displaySearchForm() {
 
    // Display Reset search
    echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/allmachinesbygroups/allmachinesbygroups.php?reset_search=reset_search'>".
-         "<img title='" . __s('Reset Search') . "' alt='" . __s('Reset Search') . "' src='" .
-         $CFG_GLPI["root_doc"] . "/pics/reset.png' class='calendrier'></a>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
+   "Reset Search</a>";
    echo "</td>";
 
    echo "<td>";
