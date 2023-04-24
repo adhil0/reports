@@ -82,7 +82,7 @@ function displaySearchForm() {
    echo "<table class='tab_cadre' cellpadding='5'>";
    echo "<tr class='tab_bg_1 center'>";
    echo "<td colspan='2'>";
-   echo __('Group')."&nbsp;&nbsp;";
+   echo __('<b>Group</b>')."&nbsp;&nbsp;";
    Group::dropdown(['name =>'  => "group",
                     'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
                     'entity'   => $_SESSION["glpiactive_entity"],
@@ -112,11 +112,9 @@ function displaySearchForm() {
    echo "</td>";
    echo "</tr>";
    // Display Reset search
-   echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-secondary'>".
-         "Reset Search</a>";
-   echo "</td>";
-   echo "<td>";
+   echo "<td class='center'>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
+   "Reset Search</a>";
    echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
    echo "</td>";
 
