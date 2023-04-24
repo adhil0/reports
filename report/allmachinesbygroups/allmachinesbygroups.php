@@ -91,7 +91,7 @@ function displaySearchForm() {
 
    // Display Reset search
    echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/allmachinesbygroups/allmachinesbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
    "Reset Search</a>";
    echo "</td>";
 
