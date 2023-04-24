@@ -137,6 +137,14 @@ function getValues($get, $post) {
    if (!isset ($get["group"])) {
       $get["group"] = 0;
    }
+
+   if (!isset ($get["date1"])) {
+      $get["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
+   }
+
+   if (!isset ($get["date2"])) {
+      $get["date2"] = date("Y-m-d");
+   }
    return $get;
 }
 
@@ -146,6 +154,8 @@ function getValues($get, $post) {
 **/
 function resetSearch() {
    $_GET["group"] = 0;
+   $_GET["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
+   $_GET["date2"] = date("Y-m-d");
 }
 
 
@@ -259,8 +269,8 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["true_diff"]) && !empty ($data["true_diff"]) && isset ($data["diff"]) && !empty ($data["diff"])) {
-         echo $data["true_diff"] / $data['diff'];
+      if (isset ($data["true_diff"]) && !empty ($data["true_diff"])) {
+         echo $data["true_diff"] / $data["diff"];
       } else {
          echo '&nbsp;';
       }
