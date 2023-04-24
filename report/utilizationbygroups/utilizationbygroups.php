@@ -81,7 +81,7 @@ function displaySearchForm() {
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
    echo "<tr class='tab_bg_1 center'>";
-   echo "<td width='300'>";
+   echo "<td colspan='2'>";
    echo __('Group')."&nbsp;&nbsp;";
    Group::dropdown(['name =>'  => "group",
                     'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
