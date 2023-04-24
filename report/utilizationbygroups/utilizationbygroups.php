@@ -89,25 +89,17 @@ function displaySearchForm() {
                     'condition' => ['is_itemgroup' => 1]]);
    echo "</td>";
 
-   // Display Reset search
-   echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search'>".
-         "<img title='" . __s('Reset Search') . "' alt='" . __s('Reset Search') . "' src='" .
-         $CFG_GLPI["root_doc"] . "/pics/reset.png' class='calendrier'></a>";
-   echo "</td>";
-
-
    echo "<tr class='tab_bg_2'>";
    echo "<td colspan='4' class='center'>";
    echo "<div align='center'>";
    echo "<table>";
    echo "<tr class='tab_bg_2'>";
-   echo "<td>".__("Begin date")."</td>";
+   echo "<td>".__("<b>Begin date</b>")."</td>";
    echo "<td>";
    Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
                                  'maybeempty' => true]);
    echo "</td>";
-   echo "<td>".__("End date")."</td>";
+   echo "<td>".__("<b>End date</b>")."</td>";
    echo "<td>";
    $date2 = date("Y-m-d");
    Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
@@ -119,7 +111,12 @@ function displaySearchForm() {
 
    echo "</td>";
    echo "</tr>";
-
+   // Display Reset search
+   echo "<td>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search'>".
+         "<img title='" . __s('Reset Search') . "' alt='" . __s('Reset Search') . "' src='" .
+         $CFG_GLPI["root_doc"] . "/pics/reset.png' class='calendrier'></a>";
+   echo "</td>";
    echo "<td>";
    echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
    echo "</td>";
