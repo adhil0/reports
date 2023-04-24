@@ -269,7 +269,7 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      echo $data["true_diff"] / $data["diff"];
+      echo round($data["true_diff"] *100 / $data["diff"], 1)."%";
       echo "</td></tr>";
    }
 }
