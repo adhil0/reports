@@ -84,7 +84,7 @@ function displaySearchForm() {
    echo "<td width='300'>";
    echo __('Group')."&nbsp;&nbsp;";
    Group::dropdown(['name =>'  => "group",
-                    'value'    => $_GET["group"],
+                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
                     'entity'   => $_SESSION["glpiactive_entity"],
                     'condition' => ['is_itemgroup' => 1]]);
    echo "</td>";
@@ -104,14 +104,13 @@ function displaySearchForm() {
    echo "<tr class='tab_bg_2'>";
    echo "<td>".__("Begin date")."</td>";
    echo "<td>";
-   $date1 =  date("Y-m-d", time() - (30 * 24 * 60 * 60));
-   Html::showDateField("date1", ['value'      => $date1,
+   Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
                                  'maybeempty' => true]);
    echo "</td>";
    echo "<td>".__("End date")."</td>";
    echo "<td>";
    $date2 = date("Y-m-d");
-   Html::showDateField("date2", ['value'      => $date2,
+   Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
                                  'maybeempty' => true]);
    echo "</td>";
    echo "</tr>";
