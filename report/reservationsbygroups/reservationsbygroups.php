@@ -84,7 +84,7 @@ function displaySearchForm() {
    echo "<td width='300'>";
    echo __('Group')."&nbsp;&nbsp;";
    Group::dropdown(['name =>'  => "group",
-                    'value'    => $_GET["group"],
+                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
                     'entity'   => $_SESSION["glpiactive_entity"],
                     'condition' => ['is_itemgroup' => 1]]);
    echo "</td>";
