@@ -34,9 +34,9 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 
 include ("../../../../inc/includes.php");
 
-includeLocales("utilizationbygroups");
+includeLocales("utilizationbymachines");
 //TRANS: The name of the report = All Computers
-Html::header(__('utilizationbygroups_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
+Html::header(__('utilizationbymachines_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
 
@@ -113,7 +113,7 @@ function displaySearchForm() {
    echo "</tr>";
    // Display Reset search
    echo "<td class='center'>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbymachines/utilizationbymachines.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
    "Reset Search</a>";
    echo "&nbsp;";
    echo "&nbsp;";

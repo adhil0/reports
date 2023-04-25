@@ -131,9 +131,9 @@ msgid "allmachinesbygroups_report_title"
 msgstr "All Computers"
 
 #. TRANS: The name of the report = Utilization By Groups
-#: report/allmachinesbygroups/utilizationbygroups.php:42
-msgid "utilizationbygroups_report_title"
-msgstr "Utilization By Groups"
+#: report/allmachinesbymachines/utilizationbymachines.php:42
+msgid "utilizationbymachines_report_title"
+msgstr "Utilization By Computer"
 
 #. TRANS: The name of the report = Number of equipments by location
 #: report/equipmentbylocation/equipmentbylocation.php:38
