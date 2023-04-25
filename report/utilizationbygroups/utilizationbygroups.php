@@ -178,8 +178,7 @@ function getObjectsbyEntity($entity) {
         if (count($query) > 0) {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
-                echo "<th class='center'>" .__('Serial number'). "</th>";
+                echo "<tr><th class='center'>" .__('Group'). "</th>";
                 echo "<th class='center'>" .__('Utilization'). "</th>";
                 echo "</tr>";
                 $display_header = true;
@@ -203,28 +202,15 @@ function displayUserDevices($type, $result) {
    global $DB, $CFG_GLPI, $_GET;
    $item = new $type();
    foreach ($result as $data) {
-      $link = $data["name"];
-      $url  = Toolbox::getItemTypeFormURL("$type");
-      $link = "<a href='" . $url . "?id=" . $data["id"] . "'>" . $link .
-               (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
-               "</a>";
-      $linktype = "";
-      if (isset ($groups[$data["id"]])) {
-         $linktype = sprintf(__('%1$s %2$s'), __('Group'), $groups[$data["groups_id"]]);
-      }
-
-      echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
-            "<td class='center'>$link</td>";
-
       echo "<td class='center'>";
-      if (isset ($data["serial"]) && !empty ($data["serial"])) {
-         echo $data["serial"];
+      if (isset ($data["completename"]) && !empty ($data["completename"])) {
+         echo $data["completename"];
       } else {
          echo '&nbsp;';
       }
 
       echo "</td><td class='center'>";
-      echo round($data["true_diff"] *100 / $data["diff"], 1)."%";
+      echo round($data["SUM(true_diff)"] *100 / $data["SUM(diff)"], 1)."%";
       echo "</td></tr>";
    }
 }
