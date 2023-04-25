@@ -49,7 +49,7 @@ displaySearchForm();
 
 $where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
 
-getObjectsByEntity($_SESSION["glpiactive_entity"]);
+getObjectsbyEntity($_SESSION["glpiactive_entity"]);
 
 
 Html::footer();
