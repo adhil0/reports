@@ -128,7 +128,7 @@ function resetSearch() {
  *
  * @param $entity    the current entity
 **/
-function getObjectsEntity($entity) {
+function getObjectsbyEntity($entity) {
    global $DB, $CFG_GLPI, $_GET;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
