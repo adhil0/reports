@@ -202,8 +202,9 @@ function displayUserDevices($type, $result) {
    global $DB, $CFG_GLPI, $_GET;
    $item = new $type();
    foreach ($result as $data) {
+    if(isset($data["completename"])) {
       echo "<td class='center'>";
-      if (isset ($data["completename"]) && !empty ($data["completename"])) {
+      if (!empty ($data["completename"])) {
          echo $data["completename"];
       } else {
          echo '&nbsp;';
@@ -213,4 +214,5 @@ function displayUserDevices($type, $result) {
       echo round($data["SUM(true_diff)"] *100 / $data["SUM(diff)"], 1)."%";
       echo "</td></tr>";
    }
+  }
 }
