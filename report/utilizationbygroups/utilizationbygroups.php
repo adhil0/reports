@@ -143,6 +143,7 @@ function getObjectsbyEntity($entity) {
                 `serial`,
                 `begin`,                                     
                 `end`,
+                `states_id`,
                 TIMESTAMPDIFF(MINUTE,'{$_GET['date1']}','{$_GET['date2']}') as diff,
                   SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
                         ELSE CAST(0 AS INTEGER)
