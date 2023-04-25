@@ -136,7 +136,7 @@ function getObjectsbyEntity($entity) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
       if ($itemtype == 'Computer'){
-       $query = $DB->request("SELECT `subquery`.`groups_id`, `completename`, SUM(diff), SUM(CASE WHEN subquery.states_id IN (2, 3, 4, 5, 6) THEN true_diff ELSE diff END) FROM (
+       $query = $DB->request("SELECT `subquery`.`groups_id`, `completename`, SUM(diff) as total_time, SUM(CASE WHEN subquery.states_id IN (2, 3, 4, 5, 6) THEN true_diff ELSE diff END) as used_time FROM (
         SELECT  `glpi_computers`.`id`,
                 `glpi_computers`.`name`,                                      
                 `glpi_computers`.`groups_id`,                 
@@ -212,7 +212,7 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      echo round($data["SUM(true_diff)"] *100 / $data["SUM(diff)"], 1)."%";
+      echo round($data["used_time"] *100 / $data["total_time"], 1)."%";
       echo "</td></tr>";
    }
   }
