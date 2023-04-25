@@ -136,7 +136,7 @@ function getObjectsbyEntity($entity) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
       if ($itemtype == 'Computer'){
-       $query = $DB->request("SELECT `subquery`.`groups_id`, `completename`, SUM(diff), SUM(true_diff) FROM (
+       $query = $DB->request("SELECT `subquery`.`groups_id`, `completename`, SUM(diff), SUM(CASE WHEN subquery.states_id IN (2, 3, 4, 5, 6) THEN true_diff ELSE diff END) FROM (
         SELECT  `glpi_computers`.`id`,
                 `glpi_computers`.`name`,                                      
                 `glpi_computers`.`groups_id`,                 
