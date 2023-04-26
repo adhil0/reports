@@ -81,7 +81,7 @@ function displaySearchForm() {
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
    echo "<tr class='tab_bg_1 center'>";
-   echo "<td colspan='2'>";
+   echo "<td colspan='4'>";
    echo __('<b>Group</b>')."&nbsp;&nbsp;";
    Group::dropdown(['name =>'  => "group",
                     'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
@@ -105,7 +105,7 @@ function displaySearchForm() {
    echo "</div>";
    echo "</tr>";
    // Display Reset search
-   echo "<td class='center'>";
+   echo "<td class='center' colspan='4'>";
    echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbymachines/utilizationbymachines.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
    "Reset Search</a>";
    echo "&nbsp;";
