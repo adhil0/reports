@@ -211,7 +211,7 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      echo round($data["used_time"] *100 / $data["total_time"], 1)."%";
+      echo round($data["SUM(true_diff)"] *100 / $data["SUM(diff)"], 1)."%";
       echo "</td></tr>";
    }
   }
