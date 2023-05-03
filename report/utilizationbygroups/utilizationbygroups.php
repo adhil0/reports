@@ -136,44 +136,65 @@ function getObjectsbyEntity($entity) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
       if ($itemtype == 'Computer'){
-       $query = $DB->request("SELECT `subquery`.`groups_id`, `completename`, SUM(diff), SUM(true_diff) FROM (
-        SELECT  `glpi_computers`.`id`,
-                `glpi_computers`.`name`,                                      
-                `glpi_computers`.`groups_id`,                 
-                `serial`,
-                `begin`,                                     
-                `end`,
-                TIMESTAMPDIFF(MINUTE,'{$_GET['date1']}','{$_GET['date2']}') as diff,
-                  SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
-                        ELSE CAST(0 AS INTEGER)
-                END) AS true_diff
-              FROM                     
-                `glpi_computers`                                           
-                LEFT JOIN (                                  
-                  SELECT               
-                    `items_id`,              
-                    `begin`,                              
-                    `end`,
-                    `glpi_reservations`.`comment`,
-                    `realname`,
-                  `firstname`
-                  FROM                                       
-                    `glpi_reservations`
-                    LEFT JOIN `glpi_reservationitems` ON (
-                      `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
-                    ) 
-                    LEFT JOIN `glpi_users` ON (
-                      `glpi_reservations`.`users_id` = `glpi_users`.`id`
-                    )
-      
-                ) AS `data` ON (glpi_computers.id = data.items_id) 
-                WHERE        `glpi_computers`.`entities_id` = '0'
-                AND `is_template` = '0'
-                AND `is_deleted` = '0'
-                GROUP BY glpi_computers.id       
-                ORDER BY `glpi_computers`.`name` ASC) as subquery
-        LEFT JOIN `glpi_groups` ON (`subquery`.`groups_id` = `glpi_groups`.`id`)
-      GROUP BY `groups_id`");
+       $query = $DB->request("SELECT	
+       `subquery`.`groups_id`,	
+       `completename`,	
+       SUM(diff),	
+       SUM(true_diff),	
+       SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE diff END) AS diff_sum, 	
+       SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE true_diff END) AS true_diff_sum, 	
+      COUNT(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 1 ELSE NULL END) AS excluded_computers_count	
+     FROM	
+       (	
+         SELECT	
+           `glpi_computers`.`id`,	
+           `glpi_computers`.`name`,	
+           `glpi_computers`.`groups_id`,	
+           `serial`,	
+           `begin`,	
+           `end`,	
+           `glpi_computers`.`states_id`,	
+           TIMESTAMPDIFF(MINUTE, '{$_GET[' date1 ']}', '{$_GET[' date2 ']}') as diff,	
+           SUM(	
+             CASE WHEN begin <= '{$_GET[' date2 ']}'	
+             AND end >= '{$_GET[' date1 ']}' THEN TIMESTAMPDIFF(	
+               MINUTE,	
+               GREATEST(begin, '{$_GET[' date1 ']}'),	
+               LEAST(end, '{$_GET[' date2 ']}')	
+             ) ELSE CAST(0 AS INTEGER) END	
+           ) AS true_diff	
+         FROM	
+           `glpi_computers`	
+           LEFT JOIN (	
+             SELECT	
+               `items_id`,	
+               `begin`,	
+               `end`,	
+               `glpi_reservations`.`comment`,	
+               `realname`,	
+               `firstname`	
+             FROM	
+               `glpi_reservations`	
+               LEFT JOIN `glpi_reservationitems` ON (	
+                 `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`	
+               )	
+               LEFT JOIN `glpi_users` ON (	
+                 `glpi_reservations`.`users_id` = `glpi_users`.`id`	
+               )	
+           ) AS `data` ON (glpi_computers.id = data.items_id)	
+         WHERE	
+           `glpi_computers`.`entities_id` = '0'	
+           AND `is_template` = '0'	
+           AND `is_deleted` = '0'	
+         GROUP BY	
+           glpi_computers.id	
+         ORDER BY	
+           `glpi_computers`.`name` ASC	
+       ) as subquery	
+       LEFT JOIN `glpi_groups` ON (`subquery`.`groups_id` = `glpi_groups`.`id`)	
+     GROUP BY	
+       `groups_id`	
+     ");
 
         if (count($query) > 0) {
             if (!$display_header) {
@@ -209,9 +230,14 @@ function displayUserDevices($type, $result) {
       } else {
          echo '&nbsp;';
       }
-
+      echo "<td class='center'>";
+      if (isset ($data["excluded_computers_count"]) && !empty ($data["excluded_computers_count"])) {
+         echo $data["excluded_computers_count"];
+      } else {
+         echo '&nbsp;';
+      }
       echo "</td><td class='center'>";
-      echo round($data["SUM(true_diff)"] *100 / $data["SUM(diff)"], 1)."%";
+      echo round($data["true_diff_sum"] *100 / $data["diff_sum"], 1)."%";
       echo "</td></tr>";
    }
   }
