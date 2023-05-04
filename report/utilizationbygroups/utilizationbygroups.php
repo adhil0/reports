@@ -238,7 +238,11 @@ function displayUserDevices($type, $result) {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
+      if ($data["diff_sum"] == 0) {
+         echo "0%";
+      } else {
       echo round($data["true_diff_sum"] *100 / $data["diff_sum"], 1)."%";
+      }
       echo "</td></tr>";
    }
   }
