@@ -64,10 +64,7 @@ function displaySearchForm() {
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
    echo "<tr class='tab_bg_2'>";
-   echo "<td colspan='4' class='center'>";
    echo "<div align='center'>";
-   echo "<table>";
-   echo "<tr class='tab_bg_2'>";
    echo "<td>".__("<b>Begin date</b>")."</td>";
    echo "<td>";
    Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
@@ -79,14 +76,10 @@ function displaySearchForm() {
    Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
                                  'maybeempty' => true]);
    echo "</td>";
-   echo "</tr>";
-   echo "</table>";
    echo "</div>";
-
-   echo "</td>";
    echo "</tr>";
    // Display Reset search
-   echo "<td class='center'>";
+   echo "<td class='center' colspan='4'>";
    echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
    "Reset Search</a>";
    echo "&nbsp;";
