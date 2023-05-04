@@ -200,7 +200,7 @@ function getObjectsbyEntity($entity) {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
                 echo "<tr><th class='center'>" .__('Group'). "</th>";
-                echo "<tr><th class='center'>" .__('# of Assigned/Checked Out Machines'). "</th>";
+                echo "<th class='center'>" .__('# of Assigned/Checked Out Machines'). "</th>";
                 echo "<th class='center'>" .__('Utilization of Available Machines'). "</th>";
                 echo "</tr>";
                 $display_header = true;
