@@ -234,13 +234,13 @@ function displayUserDevices($type, $result) {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
-      if (isset ($data["excluded_computers_count"]) && !empty ($data["excluded_computers_count"])) {
+      if (isset ($data["excluded_computers_count"])) {
          echo $data["excluded_computers_count"];
       } else {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
-      if (isset ($data["included_computers_count"]) && !empty ($data["included_computers_count"])) {
+      if (isset ($data["included_computers_count"])) {
          echo $data["included_computers_count"];
       } else {
          echo '&nbsp;';
