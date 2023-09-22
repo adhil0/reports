@@ -88,7 +88,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of assets each group has reserved over a given time period</div>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of assets each group has reserved over a given time period.</div>";
    Html::closeForm();
 }
 
