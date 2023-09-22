@@ -159,7 +159,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                               WHERE 
                                  groups_id = $group_id
                                  AND (glpi_reservationitems.is_active IS NULL OR glpi_reservationitems.is_active = 0)");
-
+      echo "<div class='alert alert-secondary'>This report lists assets that have been made unavailable for reservation via the 'Make Unavailable' or 'Prohibit Reservations' button.</div>";
         if (count($query) > 0) {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
