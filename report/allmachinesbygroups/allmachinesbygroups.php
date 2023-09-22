@@ -295,7 +295,7 @@ function displayUserDevices($type, $result) {
       echo "</td><td class='center'>";
       if (isset ($data["end"]) && !empty ($data["end"])) {
          if ($data["latest_reservation"] >= $now) {
-            $data["end"];
+            echo $data["end"];
         } else {
             echo '&nbsp;';
         }
