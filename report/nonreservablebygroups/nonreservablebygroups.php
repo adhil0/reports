@@ -147,6 +147,7 @@ function getObjectsByGroupAndEntity($group_id) {
                                  groups_id,
                                  glpi_computers.comment,
                                  glpi_computers.states_id,
+                                 glpi_computers.serial,
                                  glpi_states.completename,
                                  glpi_reservationitems.items_id,
                                  glpi_reservationitems.id,
