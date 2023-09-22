@@ -100,6 +100,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</tr></table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the reservations each group has made over a given time period</div>";
    Html::closeForm();
 }
 

@@ -100,6 +100,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</tr></table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists all computers in GLPI, by group.</div>";   
    Html::closeForm();
 }
 

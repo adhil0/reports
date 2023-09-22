@@ -100,6 +100,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</tr></table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists assets that are currently available for reservation, by group.</div>";
    Html::closeForm();
 }
 
@@ -214,7 +215,7 @@ function displayUserDevices($type, $result) {
    foreach ($result as $data) {
       $link = $data["name"];
       $url  = Toolbox::getItemTypeFormURL("$type");
-      $link = "<a href='" . $url . "?id=" . $data["id"] . "'>" . $link .
+      $link = "<a href='" . $url . "?id=" . $data["id"] . "&forcetab=Reservation$1'>" . $link .
                (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
                "</a>";
       $linktype = "";

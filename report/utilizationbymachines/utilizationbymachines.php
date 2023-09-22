@@ -114,6 +114,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</tr></table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of time each asset has been reserved for over a given time period, by group.</div>";
    Html::closeForm();
 }
 
@@ -163,11 +164,6 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
       if ($itemtype == 'Computer'){
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-        $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
-            'FROM' => 'glpi_reservations',
-            'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
-            ]]]], 'data');
-
        $query = $DB->request("SELECT   `glpi_computers`.`id`,
          `glpi_computers`.`name`,                                      
          `groups_id`,                 

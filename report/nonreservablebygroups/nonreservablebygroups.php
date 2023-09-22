@@ -100,7 +100,7 @@ function displaySearchForm() {
    echo "</td>";
 
    echo "</tr></table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists assets that have been made unavailable for reservation via the 'Make Unavailable' or 'Prohibit Reservations' button.</div>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists assets that have been made unavailable for reservation via the 'Make Unavailable' or 'Prohibit Reservations' button, by group.</div>";
    Html::closeForm();
 }
 
