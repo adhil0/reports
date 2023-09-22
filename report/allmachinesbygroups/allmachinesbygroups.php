@@ -191,7 +191,8 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
                 echo "<th class='center'>" .__('Reserved?')."</th>";
                 echo "<th class='center'>" .__('Reservation Made By'). "</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
-                echo "<th class='center'>" .__('Reservation Duration'). "</th>";
+                echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
+                echo "<th class='center'>" .__('Reservation End Date'). "</th>";
                 echo "</tr>";
                 $display_header = true;
             }
@@ -281,9 +282,20 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["begin"]) && !empty ($data["begin"]) && isset ($data["end"]) && !empty ($data["end"])) {
+      if (isset ($data["begin"]) && !empty ($data["begin"])) {
         if ($data["latest_reservation"] >= $now) {
-            echo $data["begin"] . "-" . $data["end"];
+            echo $data["begin"];
+        } else {
+            echo '&nbsp;';
+        }
+      } else {
+         echo '&nbsp;';
+      }
+
+      echo "</td><td class='center'>";
+      if (isset ($data["end"]) && !empty ($data["end"])) {
+         if ($data["latest_reservation"] >= $now) {
+            $data["end"];
         } else {
             echo '&nbsp;';
         }
