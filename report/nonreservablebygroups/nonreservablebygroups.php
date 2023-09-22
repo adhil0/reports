@@ -76,7 +76,7 @@ Html::footer();
  * Display group form
 **/
 function displaySearchForm() {
-   global $_SERVER, $_GET, $CFG_GLPI;
+   global $_SERVER, $_GET;
 
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
@@ -130,7 +130,7 @@ function resetSearch() {
  * @param $group_id  the group ID
  * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id, $entity) {
+function getObjectsByGroupAndEntity($group_id) {
    global $DB, $CFG_GLPI;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -194,10 +194,6 @@ function displayUserDevices($type, $result) {
       $link = "<a href='" . $url . "?id=" . $data["id"] . "'>" . $link .
                (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
                "</a>";
-      $linktype = "";
-      if (isset ($groups[$data["id"]])) {
-         $linktype = sprintf(__('%1$s %2$s'), __('Group'), $groups[$data["groups_id"]]);
-      }
 
       echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
             "<td class='center'>$link</td>";

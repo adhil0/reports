@@ -130,7 +130,7 @@ function resetSearch() {
  * @param $group_id  the group ID
  * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id, $entity) {
+function getObjectsByGroupAndEntity($group_id) {
    global $DB, $CFG_GLPI;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -140,10 +140,6 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
       if ($itemtype == 'Computer'){
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-        $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
-            'FROM' => 'glpi_reservations',
-            'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
-            ]]]], 'data');
 
        $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
          `glpi_computers`.`id`,
@@ -218,7 +214,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
  * @param $result    the resultset of all the devices found
 **/
 function displayUserDevices($type, $result) {
-   global $DB, $CFG_GLPI;
+   global $CFG_GLPI;
    $time = time();
    $now = date("Y-m-d H:i:s", $time);
    $item = new $type();
@@ -228,10 +224,6 @@ function displayUserDevices($type, $result) {
       $link = "<a href='" . $url . "?id=" . $data["id"] . "'>" . $link .
                (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
                "</a>";
-      $linktype = "";
-      if (isset ($groups[$data["id"]])) {
-         $linktype = sprintf(__('%1$s %2$s'), __('Group'), $groups[$data["groups_id"]]);
-      }
 
       echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
             "<td class='center'>$link</td>";

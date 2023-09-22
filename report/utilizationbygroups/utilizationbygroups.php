@@ -59,7 +59,7 @@ Html::footer();
  * Display datetime form
 **/
 function displaySearchForm() {
-   global $_SERVER, $_GET, $CFG_GLPI;
+   global $_SERVER, $_GET;
 
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
@@ -122,7 +122,7 @@ function resetSearch() {
  *
  * @param $entity    the current entity
 **/
-function getObjectsbyEntity($entity) {
+function getObjectsbyEntity() {
    global $DB, $CFG_GLPI, $_GET;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -217,8 +217,6 @@ function getObjectsbyEntity($entity) {
  * @param $result    the resultset of all the devices found
 **/
 function displayUserDevices($type, $result) {
-   global $DB, $CFG_GLPI, $_GET;
-   $item = new $type();
    foreach ($result as $data) {
     if(isset($data["completename"])) {
       echo "<td class='center'>";
