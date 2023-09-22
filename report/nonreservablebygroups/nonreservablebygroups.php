@@ -139,12 +139,26 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
       if ($itemtype == 'Computer'){
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-        $inner_query = new \QuerySubQuery(['SELECT' => ['items_id', 'begin', 'end'],
-            'FROM' => 'glpi_reservations',
-            'LEFT JOIN' => ['glpi_reservationitems' => ['FKEY' => ['glpi_reservations' => 'reservationitems_id', 'glpi_reservationitems' => 'id',
-            ]]]], 'data');
 
-       $query = $DB->request("SELECT glpi_computers.id, glpi_computers.name, groups_id, glpi_computers.comment, glpi_computers.states_id, glpi_states.completename from glpi_computers JOIN glpi_states WHERE groups_id = $group_id AND glpi_computers.states_id = glpi_states.id AND glpi_computers.id NOT in (SELECT items_id from glpi_reservationitems)");
+       $query = $DB->request("SELECT 
+                                 glpi_computers.id,
+                                 glpi_computers.name,
+                                 groups_id,
+                                 glpi_computers.comment,
+                                 glpi_computers.states_id,
+                                 glpi_states.completename,
+                                 glpi_reservationitems.items_id,
+                                 glpi_reservationitems.id,
+                                 glpi_reservationitems.is_active
+                              FROM 
+                                 glpi_computers
+                              LEFT JOIN 
+                                 glpi_states ON glpi_computers.states_id = glpi_states.id
+                              LEFT JOIN 
+                                 glpi_reservationitems ON glpi_computers.id = glpi_reservationitems.items_id
+                              WHERE 
+                                 groups_id = $group_id
+                                 AND (glpi_reservationitems.is_active IS NULL OR glpi_reservationitems.is_active = 0)");
 
         if (count($query) > 0) {
             if (!$display_header) {
