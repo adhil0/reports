@@ -137,14 +137,15 @@ function getObjectsbyEntity() {
        SUM(true_diff),	
        SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE diff END) AS diff_sum, 	
        SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE true_diff END) AS true_diff_sum, 	
-       COUNT(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 1 ELSE NULL END) AS excluded_computers_count,
-       COUNT(CASE WHEN subquery.states_id NOT IN (2,3,4,5,6) THEN 1 ELSE NULL END) AS included_computers_count	
+       COUNT(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 1 ELSE NULL END) AS excluded_computers_count,
+       COUNT(CASE WHEN subquery.is_active IS NOT NULL OR subquery.is_active <> 0 THEN 1 ELSE NULL END) AS included_computers_count	
      FROM	
        (	
          SELECT	
            `glpi_computers`.`id`,	
            `glpi_computers`.`name`,	
-           `glpi_computers`.`groups_id`,	
+           `glpi_computers`.`groups_id`,
+           `data`.`is_active`,	
            `serial`,	
            `begin`,	
            `end`,	
@@ -166,6 +167,7 @@ function getObjectsbyEntity() {
                `begin`,	
                `end`,	
                `glpi_reservations`.`comment`,	
+               `glpi_reservationitems`.`is_active`,
                `realname`,	
                `firstname`	
              FROM	
@@ -195,9 +197,9 @@ function getObjectsbyEntity() {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov'>";
                 echo "<tr><th class='center'>" .__('Group'). "</th>";
-                echo "<th class='center'>" .__('# of Assigned/Checked Out Machines'). "</th>";
-                echo "<th class='center'>" .__('# of Available Machines'). "</th>";
-                echo "<th class='center'>" .__('Utilization of Available Machines'). "</th>";
+                echo "<th class='center'>" .__('# of Statically Assigned Machines'). "</th>";
+                echo "<th class='center'>" .__('# of Reservable Machines'). "</th>";
+                echo "<th class='center'>" .__('Utilization of Reservable Machines'). "</th>";
                 echo "</tr>";
                 $display_header = true;
             }
