@@ -135,8 +135,8 @@ function getObjectsbyEntity() {
        `completename`,	
        SUM(diff),	
        SUM(true_diff),	
-       SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE diff END) AS diff_sum, 	
-       SUM(CASE WHEN subquery.states_id IN (2,3,4,5,6) THEN 0 ELSE true_diff END) AS true_diff_sum, 	
+       SUM(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 0 ELSE diff END) AS diff_sum, 	
+       SUM(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 0 ELSE true_diff END) AS true_diff_sum, 	
        COUNT(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 1 ELSE NULL END) AS excluded_computers_count,
        COUNT(CASE WHEN subquery.is_active IS NOT NULL OR subquery.is_active <> 0 THEN 1 ELSE NULL END) AS included_computers_count	
      FROM	
