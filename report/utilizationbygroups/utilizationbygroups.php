@@ -226,7 +226,7 @@ function calculateData($result) {
          $usagePercentage = ($data['summed_true_diff'] / $data['total_diff']) * 100;
          $groupData[$groupId]['usage_percentage'] = (number_format($usagePercentage, 2)) . "%";
       } else {
-         $groupData[$groupId]['usage_percentage'] = "0%";
+         $groupData[$groupId]['usage_percentage'] = "0.00%";
       }
    }
    return $groupData;
