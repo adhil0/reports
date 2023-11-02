@@ -236,9 +236,10 @@ function calculateData($result) {
 /**
  * Display all device for a group 
  *
+ * @param $type      the objet type
  * @param $result    the resultset of all the devices found
 **/
-function displayUserDevices($result) {
+function displayUserDevices($type, $result) {
    foreach ($result as $data) {
     if(isset($data["completename"])) {
       echo "<td class='center'>";
