@@ -112,7 +112,8 @@ function getValues($get, $post) {
  * Reset search
 **/
 function resetSearch() {
-   $_GET["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
+   $secondsInMonth = 30 * 24 * 60 * 60;
+   $_GET["date1"] = date("Y-m-d", time() - $secondsInMonth);
    $_GET["date2"] = date("Y-m-d");
 }
 
@@ -130,67 +131,36 @@ function getObjectsbyEntity() {
          unset($CFG_GLPI["asset_types"][$key]);
       }
       if ($itemtype == 'Computer'){
-       $query = $DB->request("SELECT	
-       `subquery`.`groups_id`,	
-       `completename`,	
-       SUM(diff),	
-       SUM(true_diff),	
-       SUM(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 0 ELSE diff END) AS diff_sum, 	
-       SUM(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 0 ELSE true_diff END) AS true_diff_sum, 	
-       COUNT(CASE WHEN subquery.is_active IS NULL OR subquery.is_active = 0 THEN 1 ELSE NULL END) AS excluded_computers_count,
-       COUNT(CASE WHEN subquery.is_active IS NOT NULL OR subquery.is_active <> 0 THEN 1 ELSE NULL END) AS included_computers_count	
-     FROM	
-       (	
-         SELECT	
-           `glpi_computers`.`id`,	
-           `glpi_computers`.`name`,	
-           `glpi_computers`.`groups_id`,
-           `data`.`is_active`,	
-           `serial`,	
-           `begin`,	
-           `end`,	
-           `glpi_computers`.`states_id`,	
-           TIMESTAMPDIFF(MINUTE, '{$_GET['date1']}', '{$_GET['date2']}') as diff,	
-           SUM(	
-             CASE WHEN begin <= '{$_GET['date2']}'	
-             AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(	
-               MINUTE,	
-               GREATEST(begin, '{$_GET['date1']}'),	
-               LEAST(end, '{$_GET['date2']}')	
-             ) ELSE CAST(0 AS INTEGER) END	
-           ) AS true_diff	
-         FROM	
-           `glpi_computers`	
-           LEFT JOIN (	
-             SELECT	
-               `items_id`,	
-               `begin`,	
-               `end`,	
-               `glpi_reservations`.`comment`,	
-               `glpi_reservationitems`.`is_active`,
-               `realname`,	
-               `firstname`	
-             FROM	
-               `glpi_reservations`	
-               LEFT JOIN `glpi_reservationitems` ON (	
-                 `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`	
-               )	
-               LEFT JOIN `glpi_users` ON (	
-                 `glpi_reservations`.`users_id` = `glpi_users`.`id`	
-               )	
-           ) AS `data` ON (glpi_computers.id = data.items_id)	
-         WHERE	
-           `glpi_computers`.`entities_id` = '0'	
-           AND `is_template` = '0'	
-           AND `is_deleted` = '0'	
-         GROUP BY	
-           glpi_computers.id	
-         ORDER BY	
-           `glpi_computers`.`name` ASC	
-       ) as subquery	
-       LEFT JOIN `glpi_groups` ON (`subquery`.`groups_id` = `glpi_groups`.`id`)	
-     GROUP BY	
-       `groups_id`	
+       $query = $DB->request("SELECT
+       glpi_groups.id AS groups_id,
+       glpi_groups.completename,
+       glpi_computers.id AS computer_id,
+       glpi_computers.name AS computer_name,
+       glpi_computers.states_id,
+       glpi_reservationitems.is_active,
+       TIMESTAMPDIFF(MINUTE, '{$_GET['date1']}', '{$_GET['date2']}') as time_diff,
+       COALESCE(SUM(
+         CASE
+           WHEN glpi_reservations.begin <= '{$_GET['date2']}' AND glpi_reservations.end >= '{$_GET['date1']}'
+           THEN TIMESTAMPDIFF(
+             MINUTE,
+             GREATEST(glpi_reservations.begin, '{$_GET['date1']}'),
+             LEAST(glpi_reservations.end, '{$_GET['date2']}')
+           )
+           ELSE 0
+         END
+       ), 0) AS reservation_length
+     FROM
+       glpi_groups
+       LEFT JOIN glpi_computers ON glpi_computers.groups_id = glpi_groups.id AND glpi_computers.entities_id = '0' AND glpi_computers.is_template = '0' AND glpi_computers.is_deleted = '0'
+       LEFT JOIN glpi_reservationitems ON glpi_computers.id = glpi_reservationitems.items_id
+       LEFT JOIN glpi_reservations ON glpi_reservationitems.id = glpi_reservations.reservationitems_id
+     GROUP BY
+       glpi_groups.id,
+       glpi_computers.id
+     ORDER BY
+       glpi_groups.completename ASC, 
+       glpi_computers.name ASC
      ");
 
         if (count($query) > 0) {
@@ -203,7 +173,8 @@ function getObjectsbyEntity() {
                 echo "</tr>";
                 $display_header = true;
             }
-            displayUserDevices($itemtype, $query);
+            $groupData = calculateData($query);
+            displayUserDevices($itemtype, $groupData);
         }
      
     }
@@ -211,14 +182,63 @@ function getObjectsbyEntity() {
    echo "</table>";
 }
 
+/**
+ * Display all device for a group 
+ *
+ * @param $result    the result set of the SQL query
+**/
+function calculateData($result) {
+   $groupData = [];
+
+   foreach ($result as $data) {
+      $groupId = $data['groups_id'];
+      $isActive = $data['is_active'];
+
+      // Initialize group data array if not already set
+      if (!isset($groupData[$groupId])) {
+         $groupData[$groupId] = [
+               'completename' => $data['completename'],
+               'active_computers' => 0,
+               'inactive_computers' => 0,
+               'summed_true_diff' => 0,
+               'total_diff' => 0,
+               'usage_percentage' => 0,
+         ];
+      }
+
+      // Increment the count of active/inactive computers
+      if ($isActive === 1) {
+         $groupData[$groupId]['active_computers']++;
+      } elseif ($data["computer_id"] != null) {
+         $groupData[$groupId]['inactive_computers']++;
+      }
+
+      // Add up the true_diff and diff for each group
+      if ($isActive === 1) {
+         $groupData[$groupId]['summed_true_diff'] += $data['reservation_length'];
+         $groupData[$groupId]['total_diff'] += $data['time_diff'];
+      }
+   }
+
+   // Calculate the usage percentage for each group
+   foreach ($groupData as $groupId => $data) {
+      if ($data['total_diff'] > 0) { // To prevent division by zero
+         $usagePercentage = ($data['summed_true_diff'] / $data['total_diff']) * 100;
+         $groupData[$groupId]['usage_percentage'] = (number_format($usagePercentage, 2)) . "%";
+      } else {
+         $groupData[$groupId]['usage_percentage'] = "0%";
+      }
+   }
+   return $groupData;
+}
+
 
 /**
  * Display all device for a group 
  *
- * @param $type      the objet type
  * @param $result    the resultset of all the devices found
 **/
-function displayUserDevices($type, $result) {
+function displayUserDevices($result) {
    foreach ($result as $data) {
     if(isset($data["completename"])) {
       echo "<td class='center'>";
@@ -228,22 +248,22 @@ function displayUserDevices($type, $result) {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
-      if (isset ($data["excluded_computers_count"])) {
-         echo $data["excluded_computers_count"];
+      if (isset ($data["inactive_computers"])) {
+         echo $data["inactive_computers"];
       } else {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
-      if (isset ($data["included_computers_count"])) {
-         echo $data["included_computers_count"];
+      if (isset ($data["active_computers"])) {
+         echo $data["active_computers"];
       } else {
          echo '&nbsp;';
       }
       echo "</td><td class='center'>";
-      if ($data["diff_sum"] == 0) {
-         echo "0%";
+      if (isset ($data["usage_percentage"])) {
+         echo $data["usage_percentage"];
       } else {
-      echo round($data["true_diff_sum"] *100 / $data["diff_sum"], 1)."%";
+         echo '&nbsp;';
       }
       echo "</td></tr>";
    }
