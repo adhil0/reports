@@ -1,4 +1,5 @@
 <?php
+
 /**
  -------------------------------------------------------------------------
   LICENSE
@@ -32,7 +33,7 @@
 $USEDBREPLICATE         = 1;
 $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 
-include ("../../../../inc/includes.php");
+include("../../../../inc/includes.php");
 
 includeLocales("utilizationbygroups");
 //TRANS: The name of the report = All Computers
@@ -40,7 +41,7 @@ Html::header(__('utilizationbygroups_report_title', 'reports'), $_SERVER['PHP_SE
 
 Report::title();
 
-if (isset ($_GET["reset_search"])) {
+if (isset($_GET["reset_search"])) {
    resetSearch();
 }
 $_GET = getValues($_GET, $_POST);
@@ -57,31 +58,36 @@ Html::footer();
 
 /**
  * Display datetime form
-**/
-function displaySearchForm() {
+ **/
+function displaySearchForm()
+{
    global $_SERVER, $_GET;
 
    echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
    echo "<table class='tab_cadre' cellpadding='5'>";
    echo "<tr class='tab_bg_2'>";
    echo "<div align='center'>";
-   echo "<td>".__("<b>Begin date</b>")."</td>";
+   echo "<td>" . __("<b>Begin date</b>") . "</td>";
    echo "<td>";
-   Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
-                                 'maybeempty' => true]);
+   Html::showDateField("date1", [
+      'value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
+      'maybeempty' => true
+   ]);
    echo "</td>";
-   echo "<td>".__("<b>End date</b>")."</td>";
+   echo "<td>" . __("<b>End date</b>") . "</td>";
    echo "<td>";
    $date2 = date("Y-m-d");
-   Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
-                                 'maybeempty' => true]);
+   Html::showDateField("date2", [
+      'value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
+      'maybeempty' => true
+   ]);
    echo "</td>";
    echo "</div>";
    echo "</tr>";
    // Display Reset search
    echo "<td class='center' colspan='4'>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
-   "Reset Search</a>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false) . "/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>" .
+      "Reset Search</a>";
    echo "&nbsp;";
    echo "&nbsp;";
    echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
@@ -93,15 +99,16 @@ function displaySearchForm() {
 }
 
 
-function getValues($get, $post) {
+function getValues($get, $post)
+{
 
    $get = array_merge($get, $post);
 
-   if (!isset ($get["date1"])) {
+   if (!isset($get["date1"])) {
       $get["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
    }
 
-   if (!isset ($get["date2"])) {
+   if (!isset($get["date2"])) {
       $get["date2"] = date("Y-m-d");
    }
    return $get;
@@ -110,8 +117,9 @@ function getValues($get, $post) {
 
 /**
  * Reset search
-**/
-function resetSearch() {
+ **/
+function resetSearch()
+{
    $secondsInMonth = 30 * 24 * 60 * 60;
    $_GET["date1"] = date("Y-m-d", time() - $secondsInMonth);
    $_GET["date2"] = date("Y-m-d");
@@ -122,16 +130,17 @@ function resetSearch() {
  * Display all devices by group
  *
  * @param $entity    the current entity
-**/
-function getObjectsbyEntity() {
+ **/
+function getObjectsbyEntity()
+{
    global $DB, $CFG_GLPI, $_GET;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
-      if ($itemtype == 'Computer'){
-       $query = $DB->request("SELECT
+      if ($itemtype == 'Computer') {
+         $query = $DB->request("SELECT
        glpi_groups.id AS groups_id,
        glpi_groups.completename,
        glpi_computers.id AS computer_id,
@@ -163,21 +172,20 @@ function getObjectsbyEntity() {
        glpi_computers.name ASC
      ");
 
-        if (count($query) > 0) {
+         if (count($query) > 0) {
             if (!$display_header) {
-                echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Group'). "</th>";
-                echo "<th class='center'>" .__('# of Statically Assigned Machines'). "</th>";
-                echo "<th class='center'>" .__('# of Reservable Machines'). "</th>";
-                echo "<th class='center'>" .__('Utilization of Reservable Machines'). "</th>";
-                echo "</tr>";
-                $display_header = true;
+               echo "<br><table class='tab_cadre_fixehov'>";
+               echo "<tr><th class='center'>" . __('Group') . "</th>";
+               echo "<th class='center'>" . __('# of Statically Assigned Machines') . "</th>";
+               echo "<th class='center'>" . __('# of Reservable Machines') . "</th>";
+               echo "<th class='center'>" . __('Utilization of Reservable Machines') . "</th>";
+               echo "</tr>";
+               $display_header = true;
             }
             $groupData = calculateData($query);
             displayUserDevices($itemtype, $groupData);
-        }
-     
-    }
+         }
+      }
    }
    echo "</table>";
 }
@@ -185,10 +193,21 @@ function getObjectsbyEntity() {
 /**
  * Display all device for a group 
  *
- * @param $result    the result set of the SQL query
-**/
-function calculateData($result) {
-   $groupData = [];
+ * @param $type      the objet type
+ * @param $result    the resultset of all the devices found
+ **/
+function calculateData($result)
+{
+   $groupData = [
+      'total' => [
+         'completename' => 'Total',
+         'active_computers' => 0,
+         'inactive_computers' => 0,
+         'reservation_length' => 0,
+         'time_diff' => 0,
+         'usage_percentage' => 0,
+      ]
+   ];
 
    foreach ($result as $data) {
       $groupId = $data['groups_id'];
@@ -197,36 +216,40 @@ function calculateData($result) {
       // Initialize group data array if not already set
       if (!isset($groupData[$groupId])) {
          $groupData[$groupId] = [
-               'completename' => $data['completename'],
-               'active_computers' => 0,
-               'inactive_computers' => 0,
-               'summed_true_diff' => 0,
-               'total_diff' => 0,
-               'usage_percentage' => 0,
+            'completename' => $data['completename'],
+            'active_computers' => 0,
+            'inactive_computers' => 0,
+            'reservation_length' => 0,
+            'time_diff' => 0,
+            'usage_percentage' => 0,
          ];
       }
 
       // Increment the count of active/inactive computers
       if ($isActive === 1) {
          $groupData[$groupId]['active_computers']++;
+         $groupData['total']['active_computers']++;
       } elseif ($data["computer_id"] != null) {
          $groupData[$groupId]['inactive_computers']++;
+         $groupData['total']['inactive_computers']++;
       }
 
       // Add up the true_diff and diff for each group
       if ($isActive === 1) {
-         $groupData[$groupId]['summed_true_diff'] += $data['reservation_length'];
-         $groupData[$groupId]['total_diff'] += $data['time_diff'];
+         $groupData[$groupId]['reservation_length'] += $data['reservation_length'];
+         $groupData[$groupId]['time_diff'] += $data['time_diff'];
+         $groupData['total']['reservation_length'] += $data['reservation_length'];
+         $groupData['total']['time_diff'] += $data['time_diff'];
       }
    }
 
    // Calculate the usage percentage for each group
    foreach ($groupData as $groupId => $data) {
-      if ($data['total_diff'] > 0) { // To prevent division by zero
-         $usagePercentage = ($data['summed_true_diff'] / $data['total_diff']) * 100;
+      if ($data['time_diff'] > 0) { // To prevent division by zero
+         $usagePercentage = ($data['reservation_length'] / $data['time_diff']) * 100;
          $groupData[$groupId]['usage_percentage'] = (number_format($usagePercentage, 2)) . "%";
       } else {
-         $groupData[$groupId]['usage_percentage'] = "0.00%";
+         $groupData[$groupId]['usage_percentage'] = "0%";
       }
    }
    return $groupData;
@@ -238,35 +261,53 @@ function calculateData($result) {
  *
  * @param $type      the objet type
  * @param $result    the resultset of all the devices found
-**/
-function displayUserDevices($type, $result) {
-   foreach ($result as $data) {
-    if(isset($data["completename"])) {
-      echo "<td class='center'>";
-      if (!empty ($data["completename"])) {
-         echo $data["completename"];
-      } else {
-         echo '&nbsp;';
+ **/
+function displayUserDevices($type, $result)
+{
+   foreach ($result as $key => $data) {
+      if ($key != 'total') {
+         if (isset($data["completename"])) {
+            echo "<td class='center'>";
+            if (!empty($data["completename"])) {
+               echo $data["completename"];
+            } else {
+               echo '&nbsp;';
+            }
+            echo "</td><td class='center'>";
+            if (isset($data["inactive_computers"])) {
+               echo $data["inactive_computers"];
+            } else {
+               echo '&nbsp;';
+            }
+            echo "</td><td class='center'>";
+            if (isset($data["active_computers"])) {
+               echo $data["active_computers"];
+            } else {
+               echo '&nbsp;';
+            }
+            echo "</td><td class='center'>";
+            if (isset($data["usage_percentage"])) {
+               echo $data["usage_percentage"];
+            } else {
+               echo '&nbsp;';
+            }
+            echo "</td></tr>";
+         }
       }
-      echo "</td><td class='center'>";
-      if (isset ($data["inactive_computers"])) {
-         echo $data["inactive_computers"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-      if (isset ($data["active_computers"])) {
-         echo $data["active_computers"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td><td class='center'>";
-      if (isset ($data["usage_percentage"])) {
-         echo $data["usage_percentage"];
-      } else {
-         echo '&nbsp;';
-      }
-      echo "</td></tr>";
    }
-  }
+   if (isset($result['total'])) {
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["completename"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["inactive_computers"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["active_computers"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["usage_percentage"] . "</p";
+      echo "</td>";
+   }
+   echo "</tr>";
 }
