@@ -248,8 +248,10 @@ function calculateData($result)
       if ($data['time_diff'] > 0) { // To prevent division by zero
          $usagePercentage = ($data['reservation_length'] / $data['time_diff']) * 100;
          $groupData[$groupId]['usage_percentage'] = (number_format($usagePercentage, 2)) . "%";
-      } else {
+      } elseif ($groupData[$groupId]['active_computers'] > 0) {
          $groupData[$groupId]['usage_percentage'] = "0.00%";
+      } else {
+         $groupData[$groupId]['usage_percentage'] = "NA";
       }
    }
    return $groupData;
