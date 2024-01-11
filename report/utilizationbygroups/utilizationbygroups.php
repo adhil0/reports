@@ -261,7 +261,7 @@ function calculateData($result)
 /**
  * Display all device for a group 
  *
- * @param $type      the objet type
+ * @param $type      the object type
  * @param $result    the resultset of all the devices found
  **/
 function displayUserDevices($type, $result)
