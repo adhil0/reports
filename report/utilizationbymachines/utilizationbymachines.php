@@ -169,9 +169,10 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `serial`,
          `begin`,                                     
          `end`,
+         `is_active`,
          TIMESTAMPDIFF(MINUTE,'{$_GET['date1']}','{$_GET['date2']}') as diff,
-           SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
-                ELSE CAST(0 AS INTEGER)
+         SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
+               ELSE CAST(0 AS INTEGER)
         END) AS true_diff
        FROM                     
          `glpi_computers`                                           
@@ -181,16 +182,12 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
              `begin`,                              
              `end`,
              `glpi_reservations`.`comment`,
-	          `realname`,
-		       `firstname`
+             `glpi_reservationitems`.`is_active`
            FROM                                       
              `glpi_reservations`
              LEFT JOIN `glpi_reservationitems` ON (
                `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
              ) 
-             LEFT JOIN `glpi_users` ON (
-               `glpi_reservations`.`users_id` = `glpi_users`.`id`
-             )
 
          ) AS `data` ON (glpi_computers.id = data.items_id) 
         WHERE   
@@ -247,7 +244,11 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      echo round($data["true_diff"] *100 / $data["diff"], 1)."%";
+      if ($data["is_active"] != null) {
+         echo round($data["true_diff"] *100 / $data["diff"], 1)."%";
+      } else {
+         echo "NA";
+      }
       echo "</td></tr>";
    }
 }
