@@ -140,9 +140,7 @@ function getObjectsByGroupAndEntity($group_id) {
       if ($itemtype == 'Computer'){
       $item = new $itemtype();
       if ($item->isField('groups_id')) {
-
-       $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
-         `glpi_computers`.`id`,
+       $query = $DB->request("SELECT `glpi_computers`.`id`,
          `glpi_computers`.`name`,                                      
          `groups_id`,                 
          `serial`,
@@ -179,10 +177,9 @@ function getObjectsByGroupAndEntity($group_id) {
          `groups_id` = $group_id                           
          AND `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
-         AND `is_deleted` = '0' GROUP BY id
-       HAVING
-         `latest_reservation` is NOT NULL
-         AND `latest_reservation` >= CURDATE()");
+         AND `is_deleted` = '0'
+         AND `begin` <= NOW()
+         AND `end` >= NOW()");
 
         if (count($query) > 0) {
             if (!$display_header) {
@@ -191,7 +188,6 @@ function getObjectsByGroupAndEntity($group_id) {
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
-                echo "<th class='center'>" .__('Reserved?')."</th>";
                 echo "<th class='center'>" .__('Reservation Made By'). "</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
                 echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
@@ -251,24 +247,8 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["latest_reservation"]) && !empty ($data["latest_reservation"]) ) {
-         if ($data["latest_reservation"] >= $now) {
-            echo "Yes";
-         }
-         else {
-            echo "No";
-         }
-      } else {
-         echo 'No';
-      }
-
-      echo "</td><td class='center'>";
       if (isset ($data["realname"]) && !empty ($data["realname"]) && isset ($data["firstname"]) && !empty ($data["firstname"])) {
-         if ($data["latest_reservation"] >= $now) {
             echo $data["firstname"]." ".$data["realname"];
-         } else {
-            echo '&nbsp;';
-         }
       } else {
          echo '&nbsp;';
       }
