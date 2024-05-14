@@ -38,7 +38,7 @@ include("../../../../inc/includes.php");
 
 includeLocales("weeklyutilization");
 //TRANS: The name of the report = All Computers
-Html::header(__('weeklyutilization_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
+Html::header(__('weekoverweekutilization_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
 
