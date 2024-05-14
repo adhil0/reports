@@ -141,7 +141,7 @@ msgid "utilizationbygroups_report_title"
 msgstr "Utilization By Group"
 
 
-#. TRANS: The name of the report = Utilization By Groups
+#. TRANS: The name of the report = Week over Week Utilization
 #: report/weekoverweekutilization/weekoverweekutilization.php:42
 msgid "weekoverweekutilization_report_title"
 msgstr "[BETA] Week over Week Utilization"
