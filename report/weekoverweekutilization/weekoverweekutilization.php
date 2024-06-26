@@ -86,15 +86,10 @@ function getObjectsbyEntity()
             if (!$display_header) {
                echo "<br><table class='tab_cadre_fixehov'>";
                echo "<tr><th class='center'>" . __('Group') . "</th>";
-               echo "<th class='center'>" . __('Week 1') . "</th>";
-               echo "<th class='center'>" . __('Week 2') . "</th>";
-               echo "<th class='center'>" . __('Week 3') . "</th>";
-               echo "<th class='center'>" . __('Week 4') . "</th>";
-               echo "<th class='center'>" . __('Week 5') . "</th>";
-               echo "<th class='center'>" . __('Week 6') . "</th>";
-               echo "<th class='center'>" . __('Week 7') . "</th>";
-               echo "<th class='center'>" . __('Week 8') . "</th>";
-               echo "<th class='center'>" . __('Week 9') . "</th>";
+               $week_dates = calculateWeekDates();
+               foreach ($week_dates as $week => $dates) {
+                  echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"]) . ")") . "</th>";
+               }
                echo "<th class='center'>" . __('Average') . "</th>";
                echo "</tr>";
                $display_header = true;
