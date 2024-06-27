@@ -35,7 +35,7 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 include ("../../../../inc/includes.php");
 
 includeLocales("utilizationbymachines");
-//TRANS: The name of the report = All Computers
+//TRANS: The name of the report = Utilization By Machines
 Html::header(__('utilizationbymachines_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
