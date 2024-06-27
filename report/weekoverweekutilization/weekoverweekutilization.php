@@ -118,21 +118,23 @@ function calculateData($result)
       $groupData['total'][$weekKey] = [
          'completename' => 'Total',
          'active_computers' => 0,
-         'inactive_computers' => 0,
          'reservation_length' => 0,
          'time_diff' => 0,
          'usage_percentage' => 0,
       ];
    }
-
+   $computers =[];
    foreach ($result as $row) {
+
       $groupId = $row['groups_id'];
       $groupKey = 'Group ' . $groupId;
       $begin = (new DateTime($row['begin']))->getTimestamp();
       $end = (new DateTime($row['end']))->getTimestamp();
+      $computerId = $row["computer_id"];
+      if (!isset($computers[$groupKey][$computerId])) {
+         $computers[$groupKey][$computerId] = true;
+      }
 
-
-      // Calculate the difference in weeks
       $weekStartEndDates = calculateWeekDates();
       for ($i = 1; $i <= 9; $i++) {
          $weekKey = 'Week ' . $i;
@@ -142,27 +144,30 @@ function calculateData($result)
             $groupData[$groupKey][$weekKey] = [
                'completename' => $row['completename'],
                'active_computers' => 0,
-               'inactive_computers' => 0,
                'reservation_length' => 0,
                'time_diff' => 0,
                'usage_percentage' => 0,
             ];
          }
-
          $weekStart = $weekStartEndDates[$weekKey]['start_date'];
          $weekEnd = $weekStartEndDates[$weekKey]['end_date'];
          if ((($begin <= $weekEnd) && ($end >= $weekStart)) && $row['is_active'] === 1) {
-            $groupData[$groupKey][$weekKey]['reservation_length'] += (min($end, $weekEnd) - max($begin, $weekStart));
-            $groupData[$groupKey][$weekKey]['time_diff'] += $weekEnd - $weekStart;
-            $groupData['total'][$weekKey]['reservation_length'] += (min($end, $weekEnd) - max($begin, $weekStart));
-            $groupData['total'][$weekKey]['time_diff'] += $weekEnd - $weekStart;
+            $groupData[$groupKey][$weekKey]['reservation_length'] += (min($end, $weekEnd) - max($begin, $weekStart))/60;
+            $groupData['total'][$weekKey]['reservation_length'] += (min($end, $weekEnd) - max($begin, $weekStart))/60;
          }
          $groupData[$groupKey][$weekKey]['completename'] = $row['completename'];
-         $groupData[$groupKey][$weekKey]['active_computers'] += ($row['is_active'] === 1 ? 1 : 0);
-         $groupData['total'][$weekKey]['active_computers'] += ($row['is_active'] === 1 ? 1 : 0);
-         $groupData[$groupKey][$weekKey]['inactive_computers'] += (!$row['is_active'] === 1 ? 1 : 0);
-         $groupData['total'][$weekKey]['inactive_computers'] += ($row['is_active'] === 1 ? 1 : 0);
+         $groupData[$groupKey][$weekKey]['active_computers'] = count($computers[$groupKey]);
+         $groupData[$groupKey][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData[$groupKey][$weekKey]['active_computers'];
+
       }
+   }
+   for ($i=1; $i <= 9; $i++) { 
+      $weekKey = 'Week ' . $i;
+      foreach ($groupData as $groupKey => $group) { 
+         $groupData['total'][$weekKey]['active_computers'] += count($computers[$groupKey]);
+      }
+      $groupData['total'][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData['total'][$weekKey]['active_computers'];
+
    }
 
    foreach ($groupData as $group => $weeks) {
