@@ -37,7 +37,7 @@ $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 include("../../../../inc/includes.php");
 
 includeLocales("weekoverweekutilization");
-//TRANS: The name of the report = All Computers
+//TRANS: The name of the report = [BETA] Week Over Week Utilization
 Html::header(__('weekoverweekutilization_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
