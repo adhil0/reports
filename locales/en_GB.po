@@ -131,20 +131,26 @@ msgid "allmachinesbygroups_report_title"
 msgstr "All Computers"
 
 #. TRANS: The name of the report = Utilization By Computer
-#: report/allmachinesbymachines/utilizationbymachines.php:42
+#: report/utilizationbymachines/utilizationbymachines.php:42
 msgid "utilizationbymachines_report_title"
 msgstr "Utilization By Computer"
 
 #. TRANS: The name of the report = Utilization By Groups
-#: report/allmachinesbygroups/utilizationbygroups.php:42
+#: report/utilizationbygroups/utilizationbygroups.php:42
 msgid "utilizationbygroups_report_title"
 msgstr "Utilization By Group"
 
 
-#. TRANS: The name of the report = Week over Week Utilization
-#: report/weekoverweekutilization/weekoverweekutilization.php:42
-msgid "weekoverweekutilization_report_title"
+#. TRANS: The name of the report = [BETA] Week over Week Utilization
+#: report/weeklyutilization/weeklyutilization.php:42
+msgid "weeklyutilization_report_title"
 msgstr "[BETA] Week over Week Utilization"
+
+#. TRANS: The name of the report = [BETA] Rolling Average Utilization
+#: report/rollingaverage/rollingaverage.php:42
+msgid "rollingaverage_report_title"
+msgstr "[BETA] Rolling Average Utilization"
+
 
 #. TRANS: The name of the report = Number of equipments by location
 #: report/equipmentbylocation/equipmentbylocation.php:38
