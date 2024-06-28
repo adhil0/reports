@@ -127,13 +127,12 @@ function calculateData($result)
       }
       $computers = [];
       foreach ($result as $row) {
-
          $groupId = $row['groups_id'];
          $groupKey = 'Group ' . $groupId;
          $begin = (new DateTime($row['begin']))->getTimestamp();
          $end = (new DateTime($row['end']))->getTimestamp();
          $computerId = $row["computer_id"];
-         if (!isset($computers[$groupKey][$computerId])) {
+         if (!isset($computers[$groupKey][$computerId]) && $row['is_active']) {
             $computers[$groupKey][$computerId] = true;
          }
 
@@ -182,12 +181,17 @@ function calculateData($result)
                $groupData[$group][$week]['usage_percentage'] = "NA";
             }
          }
-         $groupData[$group]["Average"] = number_format($groupData[$group]["Average"] / 9) . "%"; //TODO: this is what we need.
+         $groupData[$group]["Average"] = number_format($groupData[$group]["Average"] / 9) . "%";
+
+         $groupWeeklyPercentages = array_column($groupData[$group], 'usage_percentage');
+         if (count(array_unique($groupWeeklyPercentages)) === 1 && end($groupWeeklyPercentages) === 'NA') {
+            $groupData[$group]["Average"] = "NA";
+         }
          if (!isset($averageData[$group]["complete_name"])) {
             $averageData[$group]["complete_name"] = $groupData[$group][$week]["complete_name"];
          }
-         if (!isset($averageData[$group][$j+1]["Average"])) { // Add one to index because zero-index is inaccessible.
-            $averageData[$group][$j+1]["Average"] = $groupData[$group]["Average"];
+         if (!isset($averageData[$group][$j + 1]["Average"])) { // Add one to index because zero-index is inaccessible.
+            $averageData[$group][$j + 1]["Average"] = $groupData[$group]["Average"];
          }
       }
    }
@@ -220,13 +224,13 @@ function displayUserDevices($type, $result)
                echo "</td><td class='center'>";
                if (isset($stats["Average"])) {
                   echo $stats["Average"];
-               // } elseif ($week === 'Average') {
-               //    $groupWeeklyPercentages = array_column($group, 'usage_percentage');
-               //    if (count(array_unique($groupWeeklyPercentages)) === 1 && end($groupWeeklyPercentages) === 'NA') {
-               //       echo "NA";
-               //    } else {
-               //       echo $stats;
-               //    }
+                  // } elseif ($week === 'Average') {
+                  //    $groupWeeklyPercentages = array_column($group, 'usage_percentage');
+                  //    if (count(array_unique($groupWeeklyPercentages)) === 1 && end($groupWeeklyPercentages) === 'NA') {
+                  //       echo "NA";
+                  //    } else {
+                  //       echo $stats;
+                  //    }
                } else {
                   echo '&nbsp;';
                }
