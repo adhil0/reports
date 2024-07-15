@@ -33,6 +33,7 @@
 
 $USEDBREPLICATE         = 1;
 $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
+$SECONDS_IN_DAY = 60*60*24;
 
 include("../../../../inc/includes.php");
 
@@ -57,7 +58,7 @@ Html::footer();
  **/
 function getObjectsbyEntity()
 {
-   global $DB, $CFG_GLPI, $_GET;
+   global $DB, $CFG_GLPI, $_GET, $SECONDS_IN_DAY;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
@@ -88,7 +89,7 @@ function getObjectsbyEntity()
                echo "<tr><th class='center'>" . __('Group') . "</th>";
                $week_dates = calculateWeekDates();
                foreach ($week_dates as $week => $dates) {
-                  echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"]) . ")") . "</th>";
+                  echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"] - $SECONDS_IN_DAY) . ")") . "</th>";
                }
                // echo "<th class='center'>" . __('Average') . "</th>";
                echo "</tr>";
@@ -181,7 +182,7 @@ function calculateData($result)
                $groupData[$group][$week]['usage_percentage'] = "NA";
             }
          }
-         $groupData[$group]["Average"] = number_format($groupData[$group]["Average"] / 9) . "%";
+         $groupData[$group]["Average"] = number_format($groupData[$group]["Average"] / 9, 1) . "%";
 
          $groupWeeklyPercentages = array_column($groupData[$group], 'usage_percentage');
          if (count(array_unique($groupWeeklyPercentages)) === 1 && end($groupWeeklyPercentages) === 'NA') {
