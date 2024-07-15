@@ -158,7 +158,7 @@ function calculateData($result)
             }
             $groupData[$groupKey][$weekKey]['complete_name'] = $row['completename'];
             $groupData[$groupKey][$weekKey]['active_computers'] = count($computers[$groupKey]);
-            $groupData[$groupKey][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData[$groupKey][$weekKey]['active_computers'];
+            $groupData[$groupKey][$weekKey]['time_diff'] = 7 * 24 * 60 * $groupData[$groupKey][$weekKey]['active_computers'];
          }
       }
       for ($i = 1; $i <= 9; $i++) {
@@ -166,7 +166,7 @@ function calculateData($result)
          foreach ($groupData as $groupKey => $group) {
             $groupData['total'][$weekKey]['active_computers'] += count($computers[$groupKey]);
          }
-         $groupData['total'][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData['total'][$weekKey]['active_computers'];
+         $groupData['total'][$weekKey]['time_diff'] = 7 * 24 * 60 * $groupData['total'][$weekKey]['active_computers'];
       }
       foreach ($groupData as $group => $weeks) {
          $groupData[$group]["Average"] = 0;
