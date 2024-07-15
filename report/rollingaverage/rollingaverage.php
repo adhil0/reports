@@ -266,8 +266,7 @@ function calculateWeekDates($baselineWeeks = 0)
       $weekRewind = 9 - $i + $baselineWeeks;
       // Calculate the start and end dates for each week
       $weekStartDate = date("Y-m-d", strtotime("-{$weekRewind} weeks", strtotime('this week Monday')));
-      $weekEndDate = date("Y-m-d", strtotime("-{$weekRewind} weeks", strtotime('this week Sunday')));
-
+      $weekEndDate = date("Y-m-d", strtotime("-{$weekRewind} weeks", strtotime('next week Monday')));
       // Add the start and end dates to the array
       $weekStartEndDates['Week ' . $i] = array(
          'start_date' => strtotime($weekStartDate),
