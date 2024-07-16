@@ -91,7 +91,9 @@ function getObjectsbyEntity()
                $week_dates = calculateWeekDates();
                foreach ($week_dates as $week => $dates) {
                   // Subtract one day from end date to get clearer description of time range.
-                  // Ex: 1/1-1/7 -> 1/1-1/6, since we aren't using any data from 1/7 for that given week.
+                  // Ex: The calculation uses 1/1 - 1/8 to get 7 days worth of data because we go from midnight to midnight. That means that
+                  // no data from 1/8 is used. However, it's more intuitive to express this as 1/1-1/7.
+                  // 1/1-1/8 -> 1/1-1/7, since we aren't using any data from 1/8 for that given week.
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"] - $SECONDS_IN_DAY) . ")") . "</th>";
                }
                // echo "<th class='center'>" . __('Average') . "</th>";
