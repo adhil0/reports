@@ -90,6 +90,8 @@ function getObjectsbyEntity()
                echo "<tr><th class='center'>" . __('Group') . "</th>";
                $week_dates = calculateWeekDates();
                foreach ($week_dates as $week => $dates) {
+                  // Subtract one day from end date to get clearer description of time range.
+                  // Ex: 1/1-1/7 -> 1/1-1/6, since we aren't using any data from 1/7 for that given week.
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"] - $SECONDS_IN_DAY) . ")") . "</th>";
                }
                // echo "<th class='center'>" . __('Average') . "</th>";
