@@ -84,7 +84,7 @@ function getObjectsbyEntity()
 
          if (count($query) > 0) {
             if (!$display_header) {
-               echo "<div class='alert alert-primary mt-3 text-center'>This report lists each group's average asset reservation percentage over the last 9 weeks. Each data point is an average of the previous 9 weeks</div>";
+               echo "<div class='alert alert-primary mt-3 text-center'>This report lists each group's average asset reservation percentage over the last 9 weeks.</div>";
                echo "<br><table class='tab_cadre_fixehov'>";
                echo "<tr><th class='center'>" . __('Group') . "</th>";
                $week_dates = calculateWeekDates();
