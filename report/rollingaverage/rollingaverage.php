@@ -182,7 +182,7 @@ function calculateData($result)
             if ($groupKey != "total") {
                $activeComputers = count(array_filter($computers[$groupKey]));
                $groupData['total'][$weekKey]['active_computers'] += $activeComputers;
-               $groupData['total'][$weekKey]['inactive_computers'] = count($computers[$groupKey]) - $activeComputers;
+               $groupData['total'][$weekKey]['inactive_computers'] += count($computers[$groupKey]) - $activeComputers; // FIXME
             }
          }
          $groupData['total'][$weekKey]['time_diff'] = 7 * 24 * 60 * $groupData['total'][$weekKey]['active_computers'];
