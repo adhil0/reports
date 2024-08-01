@@ -86,7 +86,10 @@ function getObjectsbyEntity()
             if (!$display_header) {
                echo "<div class='alert alert-primary mt-3 text-center'>This report lists each group's average asset reservation percentage over the last 9 weeks.</div>";
                echo "<br><table class='tab_cadre_fixehov'>";
-               echo "<tr><th class='center'>" . __('Group') . "</th>";
+               echo "<tr>";
+               echo "<th class='center'>" . __('Group') . "</th>";
+               echo "<th class='center'>" . __("# of Reservable") . "</th>";
+               echo "<th class='center'>" . __("# of Non-Reservable") . "</th>";
                $week_dates = calculateWeekDates();
                foreach ($week_dates as $week => $dates) {
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"]) . ")") . "</th>";
@@ -122,6 +125,7 @@ function calculateData($result)
          'reservation_length' => 0,
          'time_diff' => 0,
          'usage_percentage' => 0,
+         'inactive_computers' => 0,
       ];
    }
    $computers =[];
@@ -132,10 +136,11 @@ function calculateData($result)
       $begin = (new DateTime($row['begin']))->getTimestamp();
       $end = (new DateTime($row['end']))->getTimestamp();
       $computerId = $row["computer_id"];
-      if (!isset($computers[$groupKey][$computerId])) {
+      if (!isset($computers[$groupKey][$computerId]) && $row['is_active']) {
          $computers[$groupKey][$computerId] = true;
+      } elseif (!isset($computers[$groupKey][$computerId]) && !$row['is_active']) {
+         $computers[$groupKey][$computerId] = false;
       }
-
       $weekStartEndDates = calculateWeekDates();
       for ($i = 1; $i <= 9; $i++) {
          $weekKey = 'Week ' . $i;
@@ -148,6 +153,7 @@ function calculateData($result)
                'reservation_length' => 0,
                'time_diff' => 0,
                'usage_percentage' => 0,
+               'inactive_computers' => 0,
             ];
          }
          $weekStart = $weekStartEndDates[$weekKey]['start_date'];
@@ -157,7 +163,9 @@ function calculateData($result)
             $groupData['total'][$weekKey]['reservation_length'] += (min($end, $weekEnd) - max($begin, $weekStart))/60;
          }
          $groupData[$groupKey][$weekKey]['completename'] = $row['completename'];
-         $groupData[$groupKey][$weekKey]['active_computers'] = count($computers[$groupKey]);
+         $activeComputers = count(array_filter($computers[$groupKey]));
+         $groupData[$groupKey][$weekKey]['active_computers'] = $activeComputers;
+         $groupData[$groupKey][$weekKey]['inactive_computers'] = count($computers[$groupKey]) - $activeComputers;
          $groupData[$groupKey][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData[$groupKey][$weekKey]['active_computers'];
 
       }
@@ -165,7 +173,11 @@ function calculateData($result)
    for ($i=1; $i <= 9; $i++) { 
       $weekKey = 'Week ' . $i;
       foreach ($groupData as $groupKey => $group) { 
-         $groupData['total'][$weekKey]['active_computers'] += count($computers[$groupKey]);
+         if ($groupKey != "total") {
+            $activeComputers = count(array_filter($computers[$groupKey]));
+            $groupData['total'][$weekKey]['active_computers'] += $activeComputers;
+            $groupData['total'][$weekKey]['inactive_computers'] += count($computers[$groupKey]) - $activeComputers;
+         }
       }
       $groupData['total'][$weekKey]['time_diff'] = 6 * 24 * 60 * $groupData['total'][$weekKey]['active_computers'];
 
@@ -184,6 +196,8 @@ function calculateData($result)
             $groupData[$group][$week]['usage_percentage'] = "NA";
          }
       }
+      $groupData[$group]['active_computers'] = $data['active_computers'];
+      $groupData[$group]['inactive_computers'] = $data['inactive_computers'];
       $groupData[$group]["Average"] = number_format($groupData[$group]["Average"] / 9) . "%";
    }
    return $groupData;
@@ -207,8 +221,21 @@ function displayUserDevices($type, $result)
             } else {
                echo '&nbsp;';
             }
+            echo "</td>";
          }
 
+         // Display Active/Inactive Computers
+         if (isset($group["active_computers"])) {
+            echo "<td class='center'>";
+            echo $group["active_computers"];
+            echo "</td>";
+         }
+
+         if (isset($group["inactive_computers"])) {
+            echo "<td class='center'>";
+            echo $group["inactive_computers"];
+            echo "</td>";
+         }
          // Display Weekly Percentage Usage
          foreach ($group as $week => $stats) {
             echo "</td><td class='center'>";
@@ -234,6 +261,19 @@ function displayUserDevices($type, $result)
       echo "<td class='center'>";
       echo "<p class='fw-bold'>" . $result["total"]["Week 1"]["completename"] . "</p";
       echo "</td>";
+      // Display Active/Inactive Computers
+
+      if (isset($result["total"]["active_computers"])) {
+         echo "<td class='center'>";
+         echo $result["total"]["active_computers"];
+         echo "</td>";
+      }
+
+      if (isset($result["total"]["inactive_computers"])) {
+         echo "<td class='center'>";
+         echo $result["total"]["inactive_computers"];
+         echo "</td>";
+      }
       foreach ($result["total"] as $week => $utilization) {
          echo "<td class='center'>";
          if ($week != 'Average') { // TODO: why? why not change data structure
