@@ -265,13 +265,13 @@ function displayUserDevices($type, $result)
 
       if (isset($result["total"]["active_computers"])) {
          echo "<td class='center'>";
-         echo $result["total"]["active_computers"];
+         echo "<p class='fw-bold'>" . $result["total"]["active_computers"] . "</p";
          echo "</td>";
       }
 
       if (isset($result["total"]["inactive_computers"])) {
          echo "<td class='center'>";
-         echo $result["total"]["inactive_computers"];
+         echo "<p class='fw-bold'>" . $result["total"]["inactive_computers"] . "</p";
          echo "</td>";
       }
       foreach ($result["total"] as $week => $utilization) {
