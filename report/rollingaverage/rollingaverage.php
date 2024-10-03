@@ -86,8 +86,8 @@ function getObjectsbyEntity()
          if (count($query) > 0) {
             if (!$display_header) {
                echo "<div class='alert alert-primary mt-3 text-center'>This report lists the rolling average of each group's asset reservation over 9 weeks. Each data point is an average of the previous 9 weeks +- ~0.5%</div>";
-               echo "<br><table class='tab_cadre_fixehov'>";
-               echo "<tr>";
+               echo "<br><table class='tab_cadre_fixehov' id='datatable'>";
+               echo "<thead><tr>";
                echo "<th class='center'>" . __('Group') . "</th>";
                echo "<th class='center'>" . __("# of Reservable") . "</th>";
                echo "<th class='center'>" . __("# of Non-Reservable") . "</th>";
@@ -100,7 +100,7 @@ function getObjectsbyEntity()
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"] - $SECONDS_IN_DAY) . ")") . "</th>";
                }
                echo "<th class='center'>" . __('Average') . "</th>";
-               echo "</tr>";
+               echo "</tr></thead>";
                $display_header = true;
             }
             $groupData = calculateData($query);
