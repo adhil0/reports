@@ -33,7 +33,6 @@
 
 $USEDBREPLICATE         = 1;
 $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
-
 include("../../../../inc/includes.php");
 
 includeLocales("weekoverweekutilization");
@@ -48,7 +47,6 @@ getObjectsbyEntity($_SESSION["glpiactive_entity"]);
 
 
 Html::footer();
-
 
 /**
  * Display all devices by group
@@ -85,8 +83,8 @@ function getObjectsbyEntity()
          if (count($query) > 0) {
             if (!$display_header) {
                echo "<div class='alert alert-primary mt-3 text-center'>This report lists each group's average asset reservation percentage over the last 9 weeks.</div>";
-               echo "<br><table class='tab_cadre_fixehov'>";
-               echo "<tr>";
+               echo "<br><table class='tab_cadre_fixehov' id='datatable'>";
+               echo "<thead><tr>";
                echo "<th class='center'>" . __('Group') . "</th>";
                echo "<th class='center'>" . __("# of Reservable") . "</th>";
                echo "<th class='center'>" . __("# of Non-Reservable") . "</th>";
@@ -95,7 +93,7 @@ function getObjectsbyEntity()
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"]) . ")") . "</th>";
                }
                echo "<th class='center'>" . __('Average') . "</th>";
-               echo "</tr>";
+               echo "<th></th><th></th></tr></thead>";
                $display_header = true;
             }
             $groupData = calculateData($query);

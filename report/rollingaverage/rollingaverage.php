@@ -86,8 +86,8 @@ function getObjectsbyEntity()
          if (count($query) > 0) {
             if (!$display_header) {
                echo "<div class='alert alert-primary mt-3 text-center'>This report lists the rolling average of each group's asset reservation over 9 weeks. Each data point is an average of the previous 9 weeks +- ~0.5%</div>";
-               echo "<br><table class='tab_cadre_fixehov'>";
-               echo "<tr>";
+               echo "<br><table class='tab_cadre_fixehov' id='datatable'>";
+               echo "<thead><tr>";
                echo "<th class='center'>" . __('Group') . "</th>";
                echo "<th class='center'>" . __("# of Reservable") . "</th>";
                echo "<th class='center'>" . __("# of Non-Reservable") . "</th>";
@@ -100,11 +100,15 @@ function getObjectsbyEntity()
                   echo "<th class='center'>" . __($week) . __(" (" . gmdate("Y-m-d", $dates["start_date"]) . " - " . gmdate("Y-m-d", $dates["end_date"] - $SECONDS_IN_DAY) . ")") . "</th>";
                }
                echo "<th class='center'>" . __('Average') . "</th>";
-               echo "</tr>";
+               echo "<th class='center'>" . __('Weighted Average (Average * # of Reservable)') . "</th>";
+               echo "</tr></thead>";
                $display_header = true;
             }
             $groupData = calculateData($query);
+            echo "<tbody>";
             displayUserDevices($itemtype, $groupData);
+            echo "</tbody>";
+
          }
       }
    }
@@ -225,17 +229,21 @@ function calculateData($result)
       $count = 0;
 
       foreach ($groupData as $key => $value) {
-         if (is_array($value) && isset($value['Average'])) {
+         if (is_array($value) && isset($value['Average']) && $value['Average'] !== 'NA') {
             $average = rtrim($value['Average'], '%'); // Remove the '%' sign
             $total += (float)$average;
             $count++;
          }
       }
-
-      if ($count > 0) {
+      if ($count === 0) {
+         $averageData[$groupName]['Total Average'] = 'NA';
+         $averageData[$groupName]["Weighted Average"] = 'NA';
+      } elseif ($count > 0) {
          $groupAverage = $total / $count;
          $averageData[$groupName]['Total Average'] = number_format($groupAverage, 1) . "%";
+         $averageData[$groupName]["Weighted Average"] =  number_format($groupAverage / 100 * $averageData[$groupName]['active_computers'], 2);
       }
+
    }
    return $averageData;
 }
@@ -261,7 +269,7 @@ function displayUserDevices($type, $result)
 
          // Display Weekly Percentage Usage
          foreach ($group as $week => $stats) {
-            if ($week != "complete_name" && $week != "Total Average" && $week != "inactive_computers" && $week != "active_computers") {
+            if ($week != "complete_name" && $week != "Total Average" && $week != "inactive_computers" && $week != "active_computers" && $week != "Weighted Average") {
                echo "</td><td class='center'>";
                if (isset($stats["Average"])) {
                   echo $stats["Average"];
@@ -296,6 +304,8 @@ function displayUserDevices($type, $result)
             echo "</td>";
          }
       }
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
    }
    echo "</tr>";
 }
