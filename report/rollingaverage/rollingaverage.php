@@ -34,7 +34,7 @@
 $USEDBREPLICATE         = 1;
 $DBCONNECTION_REQUIRED  = 0; // Not really a big SQL request
 $SECONDS_IN_DAY = 60 * 60 * 24;
-
+$RAN_GROUPS = array('');
 include("../../../../inc/includes.php");
 
 includeLocales("rollingaverage");
@@ -137,6 +137,10 @@ function calculateData($result)
             'time_diff' => 0,
             'usage_percentage' => 0,
             'inactive_computers' => 0,
+            'Total Sum' => 0,
+            'Weighted Sum' => 0,
+            'Total RAN Sum' => 0,
+            'Weighted RAN Sum' => 0
          ];
       }
       $computers = [];
@@ -218,13 +222,25 @@ function calculateData($result)
          if (!isset($averageData[$group][$j + 1]["Average"])) { // Add one to index because zero-index is inaccessible.
             $averageData[$group][$j + 1]["Average"] = $groupData[$group]["Average"];
          }
+         if (!isset($averageData[$group]["RAN"])) {
+            if (in_array($averageData[$group]["complete_name"], $GLOBALS['RAN_GROUPS'])) {
+               $averageData[$group]["RAN"] = true;
+            } else {
+               $averageData[$group]["RAN"] = false;
+            }
+         }
       }
    }
+   $non_na_groups = 0; // Number of non-static groups
+   $ran_group_count = 0;
    foreach ($averageData as $groupName => $groupData) {
       if ($groupName === 'total') {
          continue; // Skip the 'total' group
       }
-
+      if ($averageData[$groupName]['RAN']) {
+         $averageData['total']['ran_active_computers'] += $averageData[$groupName]['active_computers'];
+         $averageData['total']['ran_inactive_computers'] += $averageData[$groupName]['inactive_computers'];
+      }
       $total = 0;
       $count = 0;
 
@@ -242,13 +258,26 @@ function calculateData($result)
          $groupAverage = $total / $count;
          $averageData[$groupName]['Total Average'] = number_format($groupAverage, 1) . "%";
          $averageData[$groupName]["Weighted Average"] =  number_format($groupAverage / 100 * $averageData[$groupName]['active_computers'], 2);
+         $non_na_groups++;
+         $averageData['total']['Total Sum'] += rtrim($averageData[$groupName]['Total Average'], '%');
+         $averageData['total']['Weighted Sum'] += $averageData[$groupName]['Weighted Average'];
+         if ($averageData[$groupName]["RAN"]) {
+            // RAN sums
+            $averageData['total']['Total RAN Sum'] += rtrim($averageData[$groupName]['Total Average'], '%');
+            $averageData['total']['Weighted RAN Sum'] += $averageData[$groupName]['Weighted Average'];
+            $ran_group_count++;
+         }
       }
 
    }
+   $averageData['total']['Total Average'] = number_format($averageData['total']['Total Sum']/$non_na_groups, 1). "%";
+   $averageData['total']['Weighted Average'] = number_format(fdiv($averageData['total']['Weighted Sum'],$averageData['total']['active_computers'])*100, 1). "%";
+   $averageData['total']['Total RAN Average'] = number_format($averageData['total']['Total RAN Sum']/$ran_group_count, 1). "%";
+   $averageData['total']['Weighted RAN Average'] = number_format(fdiv($averageData['total']['Weighted RAN Sum'],$averageData['total']['ran_active_computers'])*100, 1). "%";
    return $averageData;
 }
 /**
- * Display all device for a group 
+ * Display all device for a group
  *
  * @param $type      the object type
  * @param $result    the resultset of all the devices found
@@ -269,7 +298,7 @@ function displayUserDevices($type, $result)
 
          // Display Weekly Percentage Usage
          foreach ($group as $week => $stats) {
-            if ($week != "complete_name" && $week != "Total Average" && $week != "inactive_computers" && $week != "active_computers" && $week != "Weighted Average") {
+            if ($week != "complete_name" && $week != "Total Average" && $week != "RAN" && $week != "inactive_computers" && $week != "active_computers" && $week != "Weighted Average"  && $week !="Total RAN Average" && $week !="Weighted RAN Average") {
                echo "</td><td class='center'>";
                if (isset($stats["Average"])) {
                   echo $stats["Average"];
@@ -283,7 +312,7 @@ function displayUserDevices($type, $result)
                } else {
                   echo '&nbsp;';
                }
-            } elseif($week != "complete_name") {
+            } elseif($week != "complete_name" && $week != "RAN") {
                echo "</td><td class='center'>";
                echo $group[$week];
             }
@@ -294,18 +323,58 @@ function displayUserDevices($type, $result)
 
    // Display "Total" Row
    if (isset($result['total'])) {
+      echo "<tfoot></tfoot>";
+      echo "<tr>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>RAN Total</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["ran_active_computers"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["ran_inactive_computers"] . "</p";
+      echo "</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["Total RAN Average"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["Weighted RAN Average"] . "</p";
+      echo "</td>";
+      echo "</tr>";
+      echo "<tr>";
       echo "<td class='center'>";
       echo "<p class='fw-bold'>" . $result["total"]["complete_name"] . "</p";
       echo "</td>";
-      foreach ($result["total"] as $week => $utilization) {
-         echo "<td class='center'>";
-         if ($week == 'inactive_computers' || $week == 'active_computers') {
-            echo "<p class='fw-bold'>" . $utilization . "</p";
-            echo "</td>";
-         }
-      }
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["active_computers"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["inactive_computers"] . "</p";
+      echo "</td>";
       echo "<td>&nbsp;</td>";
       echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td>&nbsp;</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["Total Average"] . "</p";
+      echo "</td>";
+      echo "<td class='center'>";
+      echo "<p class='fw-bold'>" . $result["total"]["Weighted Average"] . "</p";
+      echo "</td>";
    }
    echo "</tr>";
 }
