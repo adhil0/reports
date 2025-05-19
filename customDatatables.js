@@ -10,7 +10,7 @@ new DataTable('#datatable', {
         // panes: [{
         //     header: 'Custom Search',
         //     options: [{
-        //         label: 'RAN',
+        //         label: 'Platform',
         //         value: function (rowData, rowIdx) {
         //             return rowData[0] == <INSERT GROUPS HERE>;
         //         }

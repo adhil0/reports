@@ -326,7 +326,7 @@ function displayUserDevices($type, $result)
       echo "<tfoot></tfoot>";
       echo "<tr>";
       echo "<td class='center'>";
-      echo "<p class='fw-bold'>RAN Total</p";
+      echo "<p class='fw-bold'>Platform Total</p";
       echo "</td>";
       echo "<td class='center'>";
       echo "<p class='fw-bold'>" . $result["total"]["ran_active_computers"] . "</p";
