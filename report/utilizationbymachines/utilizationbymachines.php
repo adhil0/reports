@@ -167,29 +167,22 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          `glpi_computers`.`name`,                                      
          `groups_id`,                 
          `serial`,
-         `begin`,                                     
-         `end`,
-         `is_active`,
+         `glpi_reservations`.`begin`,                                     
+         `glpi_reservations`.`end`,
+         `glpi_reservationitems`.`is_active`,
          TIMESTAMPDIFF(MINUTE,'{$_GET['date1']}','{$_GET['date2']}') as diff,
-         SUM(CASE WHEN begin<='{$_GET['date2']}' AND end >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(begin,'{$_GET['date1']}'),LEAST(end,'{$_GET['date2']}'))
+         SUM(CASE WHEN `glpi_reservations`.`begin`<='{$_GET['date2']}' AND `glpi_reservations`.`end` >= '{$_GET['date1']}' THEN TIMESTAMPDIFF(MINUTE,GREATEST(`glpi_reservations`.`begin`,'{$_GET['date1']}'),LEAST(`glpi_reservations`.`end`,'{$_GET['date2']}'))
                ELSE CAST(0 AS INTEGER)
         END) AS true_diff
        FROM                     
          `glpi_computers`                                           
-         LEFT JOIN (                                  
-           SELECT               
-             `items_id`,              
-             `begin`,                              
-             `end`,
-             `glpi_reservations`.`comment`,
-             `glpi_reservationitems`.`is_active`
-           FROM                                       
-             `glpi_reservations`
-             LEFT JOIN `glpi_reservationitems` ON (
-               `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
-             ) 
-
-         ) AS `data` ON (glpi_computers.id = data.items_id) 
+         LEFT JOIN `glpi_reservationitems` ON (
+           `glpi_reservationitems`.`items_id` = `glpi_computers`.`id`
+           AND `glpi_reservationitems`.`itemtype` = 'Computer'
+         )
+         LEFT JOIN `glpi_reservations` ON (
+           `glpi_reservations`.`reservationitems_id` = `glpi_reservationitems`.`id`
+         ) 
         WHERE   
          `groups_id` = $group_id                      
          AND `glpi_computers`.`entities_id` = '0'
