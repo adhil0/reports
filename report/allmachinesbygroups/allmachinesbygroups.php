@@ -40,34 +40,7 @@ Html::header(__('allmachinesbygroups_report_title', 'reports'), $_SERVER['PHP_SE
 
 Report::title();
 
-if (isset ($_GET["reset_search"])) {
-   resetSearch();
-}
-$_GET = getValues($_GET, $_POST);
-
-displaySearchForm();
-
-$where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
-if (isset($_GET["groups_id"]) && $_GET["groups_id"]) {
-   $where = ['entities_id' => [$_SESSION["glpiactive_entity"]],
-             'id'          => $_GET['groups_id']];
-}
-
-$result = $DB->request('glpi_groups', ['SELECT' => ['id', 'name'],
-                                       'WHERE'  => $where,
-                                       'ORDER'  => 'name']);
-$last_group_id = -1;
-
-foreach ($result as $datas) {
-   if ($last_group_id != $datas["id"]) {
-      echo "<table class='tab_cadre' cellpadding='5'>";
-      echo "<tr><th>".sprintf(__('%1$s: %2$s'), __('Group'), $datas['name'])."</th></th></tr>";
-      $last_group_id = $datas["id"];
-      echo "</table>";
-   }
-
-   getObjectsByGroupAndEntity($datas["id"], $_SESSION["glpiactive_entity"]);
-}
+getObjectsByGroupAndEntity();
 
 Html::footer();
 
@@ -103,7 +76,7 @@ function displaySearchForm() {
    echo "<div class='alert alert-primary mt-3 text-center'>This report lists all computers in GLPI, by group.</div>";   
    Html::closeForm();
 }
-
+function getObjectsByGroupAndEntity() {
 
 function getValues($get, $post) {
 
@@ -126,11 +99,8 @@ function resetSearch() {
 
 /**
  * Display all devices by group
- *
- * @param $group_id  the group ID
- * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id, $entity) {
+function getObjectsByGroupAndEntity() {
    global $DB, $CFG_GLPI;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -181,26 +151,33 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          AND `is_deleted` = '0' GROUP BY id
          ORDER BY `glpi_computers`.`name` ASC");
 
-        if (count($query) > 0) {
-            if (!$display_header) {
-                echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
-                echo "<th class='center'>" .__('Serial number'). "</th>";
-                echo "<th class='center'>" .__('Status'). "</th>";
-                echo "<th class='center'>" .__('Computer Comment'). "</th>";
-                echo "<th class='center'>" .__('Reserved?')."</th>";
-                echo "<th class='center'>" .__('Reservation Made By'). "</th>";
-                echo "<th class='center'>" .__('Reservation Comment'). "</th>";
-                echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
-                echo "<th class='center'>" .__('Reservation End Date'). "</th>";
-                echo "</tr>";
-                $display_header = true;
+            if (count($query) > 0) {
+               if (!$display_header) {
+                  echo "<br><table class='tab_cadre_fixehov' id='allmachinesbygroups'>";
+                  echo "<thead><tr>";
+                  echo "<th class='center'>" .__('Group'). "</th>";
+                  echo "<th class='center'>" .__('Type'). "</th>";
+                  echo "<th class='center'>" .__('Name'). "</th>";
+                  echo "<th class='center'>" .__("Status"). "</th>";
+                  echo "<th class='center'>" .__('Serial number'). "</th>";
+                  echo "<th class='center'>" .__('Computer Comment'). "</th>";
+                  echo "<th class='center'>" .__('Reserved?')."</th>";
+                  echo "<th class='center'>" .__('Reservation Made By'). "</th>";
+                  echo "<th class='center'>" .__('Reservation Comment'). "</th>";
+                  echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
+                  echo "<th class='center'>" .__('Reservation End Date'). "</th>";
+                  echo "</tr></thead>";
+                  echo "<tbody>";
+                  $display_header = true;
+               }
+               displayUserDevices($itemtype, $query);
+            } else {
+               echo __('No computers found');
             }
-            displayUserDevices($itemtype, $query);
-        }
-     }
-    }
+         }
+      }
    }
+   echo "</tbody>";
    echo "</table>";
 }
 
@@ -217,37 +194,52 @@ function displayUserDevices($type, $result) {
    $now = date("Y-m-d H:i:s", $time);
    $item = new $type();
    foreach ($result as $data) {
+      echo "<tr class='tab_bg_1'>";
+      
+      // Group column
+      echo "<td class='center'>";
+      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
+         echo $data["group_name"];
+      } else {
+         echo 'NA';
+      }
+      echo "</td>";
+
       $link = $data["name"];
       $url  = Toolbox::getItemTypeFormURL("$type");
       $link = "<a href='" . $url . "?id=" . $data["id"] . "'>" . $link .
-               (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
+               (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["group_id"] . ")" : "") .
                "</a>";
+      
+      echo "<td class='center'>".$item->getTypeName()."</td>";
 
-      echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
-            "<td class='center'>$link</td>";
+      echo "<td class='center'>$link</td>";
+
+      echo "<td class='center'>";
+      if (isset ($data["completename"]) && !empty ($data["completename"])) {
+         echo $data["completename"];
+      } else {
+         echo 'NA';
+      }
+      echo "</td>";
 
       echo "<td class='center'>";
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
+      echo "</td>";
 
-      echo "</td><td class='center'>";
-      if (isset ($data["completename"]) && !empty ($data["completename"])) {
-         echo $data["completename"];
-      } else {
-         echo '&nbsp;';
-      }
-
-      echo "</td><td class='center'>";
+      echo "<td class='center'>";
       if (isset ($data["computer_comment"]) && !empty ($data["computer_comment"])) {
          echo $data["computer_comment"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
+      echo "</td>";
 
-      echo "</td><td class='center'>";
+      echo "<td class='center'>";
       if (isset ($data["latest_reservation"]) && !empty ($data["latest_reservation"]) ) {
          if ($data["latest_reservation"] >= $now) {
             echo "Yes";
@@ -258,49 +250,53 @@ function displayUserDevices($type, $result) {
       } else {
          echo 'No';
       }
+      echo "</td>";
 
-      echo "</td><td class='center'>";
+      echo "<td class='center'>";
       if (isset ($data["realname"]) && !empty ($data["realname"]) && isset ($data["firstname"]) && !empty ($data["firstname"])) {
          if ($data["latest_reservation"] >= $now) {
             echo $data["firstname"]." ".$data["realname"];
          } else {
-            echo '&nbsp;';
+            echo 'NA';
          }
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
+      echo "</td>";
 
-      echo "</td><td class='center'>";
+      echo "<td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
         if ($data["latest_reservation"] >= $now) {
          echo $data["reservation_comment"];
         } else {
-            echo '&nbsp;';
+            echo 'NA';
         }
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
+      echo "</td>";
 
-      echo "</td><td class='center'>";
+      echo "<td class='center'>";
       if (isset ($data["begin"]) && !empty ($data["begin"])) {
         if ($data["latest_reservation"] >= $now) {
             echo $data["begin"];
         } else {
-            echo '&nbsp;';
+            echo 'NA';
         }
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
-
-      echo "</td><td class='center'>";
+      echo "</td>";
+      
+      echo "<td class='center'>";
       if (isset ($data["end"]) && !empty ($data["end"])) {
          if ($data["latest_reservation"] >= $now) {
             echo $data["end"];
         } else {
-            echo '&nbsp;';
+            echo 'NA';
         }
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
       echo "</td></tr>";
    }

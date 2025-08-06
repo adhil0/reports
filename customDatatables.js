@@ -24,3 +24,14 @@ new DataTable('#datatable', {
         targets: [0]
     }]
 });
+
+new DataTable('#allmachinesbygroups', {
+    layout: {
+        top1: 'searchPanes',
+    },
+    pageLength: 5000,
+    searchPanes: {
+        columns: [0, 3, 6],
+        hideCount: true,
+    },
+});
