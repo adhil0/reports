@@ -46,58 +46,6 @@ Html::footer();
 
 
 /**
- * Display group form
-**/
-function displaySearchForm() {
-   global $_SERVER, $_GET, $CFG_GLPI;
-
-   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
-   echo "<table class='tab_cadre' cellpadding='5'>";
-   echo "<tr class='tab_bg_1 center'>";
-   echo "<td width='300'>";
-   echo __('Group')."&nbsp;&nbsp;";
-   Group::dropdown(['name =>'  => "group",
-                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
-                    'entity'   => $_SESSION["glpiactive_entity"],
-                    'condition' => ['is_itemgroup' => 1]]);
-   echo "</td>";
-
-   // Display Reset search
-   echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/allmachinesbygroups/allmachinesbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
-   "Reset Search</a>";
-   echo "</td>";
-
-   echo "<td>";
-   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
-   echo "</td>";
-
-   echo "</tr></table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists all computers in GLPI, by group.</div>";   
-   Html::closeForm();
-}
-function getObjectsByGroupAndEntity() {
-
-function getValues($get, $post) {
-
-   $get = array_merge($get, $post);
-
-   if (!isset ($get["group"])) {
-      $get["group"] = 0;
-   }
-   return $get;
-}
-
-
-/**
- * Reset search
-**/
-function resetSearch() {
-   $_GET["group"] = 0;
-}
-
-
-/**
  * Display all devices by group
 **/
 function getObjectsByGroupAndEntity() {
