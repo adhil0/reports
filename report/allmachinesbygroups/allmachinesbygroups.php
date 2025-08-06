@@ -55,49 +55,42 @@ function getObjectsByGroupAndEntity() {
       if (($itemtype == 'Certificate') || ($itemtype == 'SoftwareLicense')) {
          unset($CFG_GLPI["asset_types"][$key]);
       }
-      if ($itemtype == 'Computer'){
-      $item = new $itemtype();
-      if ($item->isField('groups_id')) {
-       $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
-         `glpi_computers`.`id`,
-         `glpi_computers`.`name`,                                      
-         `groups_id`,                 
-         `serial`,
-         `begin`,                                     
-         `end`,
-         `data`.`comment` AS `reservation_comment`, 
-         `glpi_computers`.`comment` AS `computer_comment`,
-         `glpi_states`.`completename`,
-         `data`.`realname`,
-	      `data`.`firstname`                
-       FROM                     
-         `glpi_computers`                                           
-         LEFT JOIN (                                  
-           SELECT               
-             `items_id`,              
-             `begin`,                                                                
-             `end`,
-             `glpi_reservations`.`comment`,
-	          `realname`,
-		       `firstname`
-           FROM                                       
-             `glpi_reservations`
-             LEFT JOIN `glpi_reservationitems` ON (
-               `glpi_reservationitems`.`id` = `glpi_reservations`.`reservationitems_id`
-             ) 
-             LEFT JOIN `glpi_users` ON (
-               `glpi_reservations`.`users_id` = `glpi_users`.`id`
-             )
-
-         ) AS `data` ON (glpi_computers.id = data.items_id)
-         LEFT JOIN glpi_states 
-            ON glpi_computers.states_id = glpi_states.id
-       WHERE   
-         `groups_id` = $group_id                      
-         AND `glpi_computers`.`entities_id` = '0'
-         AND `is_template` = '0'
-         AND `is_deleted` = '0' GROUP BY id
-         ORDER BY `glpi_computers`.`name` ASC");
+      if ($itemtype == 'Computer') {
+         $item = new $itemtype();
+         if ($item->isField('groups_id')) {
+            $query = $DB->request("SELECT 
+               MAX(`glpi_reservations`.`end`) as `latest_reservation`,
+               `glpi_computers`.`id`,
+               `glpi_computers`.`name`,                                      
+               `glpi_computers`.`groups_id` AS `group_id`,
+               `glpi_groups`.`name` AS `group_name`,
+               `glpi_computers`.`serial`,
+               `glpi_reservations`.`begin`,                                     
+               `glpi_reservations`.`end`,
+               `glpi_reservations`.`comment` AS `reservation_comment`, 
+               `glpi_computers`.`comment` AS `computer_comment`,
+               `glpi_states`.`completename`,
+               `glpi_users`.`realname`,
+               `glpi_users`.`firstname`                
+            FROM `glpi_computers`
+               LEFT JOIN `glpi_groups` ON `glpi_computers`.`groups_id` = `glpi_groups`.`id`
+               LEFT JOIN `glpi_states` ON `glpi_computers`.`states_id` = `glpi_states`.`id`
+               LEFT JOIN `glpi_reservationitems` ON (
+                  `glpi_reservationitems`.`items_id` = `glpi_computers`.`id` 
+                  AND `glpi_reservationitems`.`itemtype` = 'Computer'
+               )
+               LEFT JOIN `glpi_reservations` ON (
+                  `glpi_reservations`.`reservationitems_id` = `glpi_reservationitems`.`id`
+               )
+               LEFT JOIN `glpi_users` ON (
+                  `glpi_reservations`.`users_id` = `glpi_users`.`id`
+               )
+            WHERE   
+               `glpi_computers`.`entities_id` = '0'
+               AND `glpi_computers`.`is_template` = '0'
+               AND `glpi_computers`.`is_deleted` = '0' 
+            GROUP BY `glpi_computers`.`id`
+            ORDER BY `glpi_computers`.`name` ASC");
 
             if (count($query) > 0) {
                if (!$display_header) {
