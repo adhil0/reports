@@ -55,9 +55,9 @@ function plugin_init_reports() {
    }
 
    $PLUGIN_HOOKS['menu_entry']['reports'] = false;
-   $PLUGIN_HOOKS['add_javascript']['reports'][] = 'datatables.js';
+   $PLUGIN_HOOKS['add_javascript']['reports'][] = 'datatables.min.js';
    $PLUGIN_HOOKS['add_javascript']['reports'][] = 'customDatatables.js';
-   $PLUGIN_HOOKS['add_css']['reports'] = 'datatables.css';
+   $PLUGIN_HOOKS['add_css']['reports'] = 'datatables.min.css';
    $rightreport = [];
    $rightstats  = [];
 
