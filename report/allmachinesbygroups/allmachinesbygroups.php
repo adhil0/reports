@@ -142,7 +142,7 @@ function displayUserDevices($type, $result) {
       if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
          echo $data["group_name"];
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -160,7 +160,7 @@ function displayUserDevices($type, $result) {
       if (isset ($data["completename"]) && !empty ($data["completename"])) {
          echo $data["completename"];
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -168,7 +168,7 @@ function displayUserDevices($type, $result) {
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -176,7 +176,7 @@ function displayUserDevices($type, $result) {
       if (isset ($data["computer_comment"]) && !empty ($data["computer_comment"])) {
          echo $data["computer_comment"];
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -198,10 +198,10 @@ function displayUserDevices($type, $result) {
          if ($data["latest_reservation"] >= $now) {
             echo $data["firstname"]." ".$data["realname"];
          } else {
-            echo 'NA';
+            echo '';
          }
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -210,10 +210,10 @@ function displayUserDevices($type, $result) {
         if ($data["latest_reservation"] >= $now) {
          echo $data["reservation_comment"];
         } else {
-            echo 'NA';
+            echo '';
         }
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
 
@@ -222,10 +222,10 @@ function displayUserDevices($type, $result) {
         if ($data["latest_reservation"] >= $now) {
             echo $data["begin"];
         } else {
-            echo 'NA';
+            echo '';
         }
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td>";
       
@@ -234,10 +234,10 @@ function displayUserDevices($type, $result) {
          if ($data["latest_reservation"] >= $now) {
             echo $data["end"];
         } else {
-            echo 'NA';
+            echo '';
         }
       } else {
-         echo 'NA';
+         echo '';
       }
       echo "</td></tr>";
    }
