@@ -58,20 +58,20 @@ function getObjectsByGroupAndEntity() {
       if ($itemtype == 'Computer') {
          $item = new $itemtype();
          if ($item->isField('groups_id')) {
-            $query = $DB->request("SELECT 
-               MAX(`glpi_reservations`.`end`) as `latest_reservation`,
+                         $query = $DB->request("SELECT 
                `glpi_computers`.`id`,
                `glpi_computers`.`name`,                                      
                `glpi_computers`.`groups_id` AS `group_id`,
                `glpi_groups`.`name` AS `group_name`,
                `glpi_computers`.`serial`,
-               `glpi_reservations`.`begin`,                                     
-               `glpi_reservations`.`end`,
-               `glpi_reservations`.`comment` AS `reservation_comment`, 
+               `latest_res`.`begin`,                                     
+               `latest_res`.`end`,
+               `latest_res`.`end` AS `latest_reservation`,
+               `latest_res`.`comment` AS `reservation_comment`, 
                `glpi_computers`.`comment` AS `computer_comment`,
                `glpi_states`.`completename`,
-               `glpi_users`.`realname`,
-               `glpi_users`.`firstname`                
+               `latest_users`.`realname`,
+               `latest_users`.`firstname`                
             FROM `glpi_computers`
                LEFT JOIN `glpi_groups` ON `glpi_computers`.`groups_id` = `glpi_groups`.`id`
                LEFT JOIN `glpi_states` ON `glpi_computers`.`states_id` = `glpi_states`.`id`
@@ -79,11 +79,16 @@ function getObjectsByGroupAndEntity() {
                   `glpi_reservationitems`.`items_id` = `glpi_computers`.`id` 
                   AND `glpi_reservationitems`.`itemtype` = 'Computer'
                )
-               LEFT JOIN `glpi_reservations` ON (
-                  `glpi_reservations`.`reservationitems_id` = `glpi_reservationitems`.`id`
+               LEFT JOIN `glpi_reservations` AS `latest_res` ON (
+                  `latest_res`.`reservationitems_id` = `glpi_reservationitems`.`id`
+                  AND `latest_res`.`end` = (
+                     SELECT MAX(`end`) 
+                     FROM `glpi_reservations` AS `sub_res` 
+                     WHERE `sub_res`.`reservationitems_id` = `glpi_reservationitems`.`id`
+                  )
                )
-               LEFT JOIN `glpi_users` ON (
-                  `glpi_reservations`.`users_id` = `glpi_users`.`id`
+               LEFT JOIN `glpi_users` AS `latest_users` ON (
+                  `latest_res`.`users_id` = `latest_users`.`id`
                )
             WHERE   
                `glpi_computers`.`entities_id` = '0'
@@ -105,8 +110,8 @@ function getObjectsByGroupAndEntity() {
                   echo "<th class='center'>" .__('Reserved?')."</th>";
                   echo "<th class='center'>" .__('Reservation Made By'). "</th>";
                   echo "<th class='center'>" .__('Reservation Comment'). "</th>";
-                  echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
-                  echo "<th class='center'>" .__('Reservation End Date'). "</th>";
+                  echo "<th class='center'>" .__('Latest Reservation Start Date'). "</th>";
+                  echo "<th class='center'>" .__('Latest Reservation End Date'). "</th>";
                   echo "</tr></thead>";
                   echo "<tbody>";
                   $display_header = true;

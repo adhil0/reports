@@ -190,8 +190,8 @@ function getObjectsByGroupAndEntity($group_id) {
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reservation Made By'). "</th>";
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
-                echo "<th class='center'>" .__('Reservation Start Date'). "</th>";
-                echo "<th class='center'>" .__('Reservation End Date'). "</th>";
+                echo "<th class='center'>" .__('Latest Reservation Start Date'). "</th>";
+                echo "<th class='center'>" .__('Latest Reservation End Date'). "</th>";
                 echo "</tr>";
                 $display_header = true;
             }
