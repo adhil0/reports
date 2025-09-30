@@ -55,3 +55,7 @@ new DataTable('#allmachinesbygroups', {
         hideCount: true,
     },
 });
+
+new DataTable('#utilizationbymachines', {
+    pageLength: 5000,
+});

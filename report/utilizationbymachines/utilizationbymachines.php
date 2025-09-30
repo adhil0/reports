@@ -39,83 +39,11 @@ includeLocales("utilizationbymachines");
 Html::header(__('utilizationbymachines_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
-
-if (isset ($_GET["reset_search"])) {
-   resetSearch();
-}
 $_GET = getValues($_GET, $_POST);
-
-displaySearchForm();
-
-$where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
-if (isset($_GET["groups_id"]) && $_GET["groups_id"]) {
-   $where = ['entities_id' => [$_SESSION["glpiactive_entity"]],
-             'id'          => $_GET['groups_id']];
-}
-
-$result = $DB->request('glpi_groups', ['SELECT' => ['id', 'name'],
-                                       'WHERE'  => $where,
-                                       'ORDER'  => 'name']);
-$last_group_id = -1;
-
-foreach ($result as $datas) {
-   if ($last_group_id != $datas["id"]) {
-      echo "<table class='tab_cadre' cellpadding='5'>";
-      echo "<tr><th>".sprintf(__('%1$s: %2$s'), __('Group'), $datas['name'])."</th></th></tr>";
-      $last_group_id = $datas["id"];
-      echo "</table>";
-   }
-
-   getObjectsByGroupAndEntity($datas["id"], $_SESSION["glpiactive_entity"]);
-}
+getObjectsByGroupAndEntity();
 
 Html::footer();
 
-
-/**
- * Display group form
-**/
-function displaySearchForm() {
-   global $_SERVER, $_GET;
-
-   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
-   echo "<table class='tab_cadre' cellpadding='5'>";
-   echo "<tr class='tab_bg_1 center'>";
-   echo "<td colspan='4'>";
-   echo __('<b>Group</b>')."&nbsp;&nbsp;";
-   Group::dropdown(['name =>'  => "group",
-                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
-                    'entity'   => $_SESSION["glpiactive_entity"],
-                    'condition' => ['is_itemgroup' => 1]]);
-   echo "</td>";
-
-   echo "<tr class='tab_bg_2'>";
-   echo "<div align='center'>";
-   echo "<td>".__("<b>Begin date</b>")."</td>";
-   echo "<td>";
-   Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
-                                 'maybeempty' => true]);
-   echo "</td>";
-   echo "<td>".__("<b>End date</b>")."</td>";
-   echo "<td>";
-   Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
-                                 'maybeempty' => true]);
-   echo "</td>";
-   echo "</div>";
-   echo "</tr>";
-   // Display Reset search
-   echo "<td class='center' colspan='4'>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbymachines/utilizationbymachines.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
-   "Reset Search</a>";
-   echo "&nbsp;";
-   echo "&nbsp;";
-   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
-   echo "</td>";
-
-   echo "</tr></table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of time each asset has been reserved for over a given time period, by group.</div>";
-   Html::closeForm();
-}
 
 
 function getValues($get, $post) {
@@ -138,22 +66,9 @@ function getValues($get, $post) {
 
 
 /**
- * Reset search
-**/
-function resetSearch() {
-   $_GET["group"] = 0;
-   $_GET["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
-   $_GET["date2"] = date("Y-m-d");
-}
-
-
-/**
  * Display all devices by group
- *
- * @param $group_id  the group ID
- * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id, $entity) {
+function getObjectsByGroupAndEntity() {
    global $DB, $CFG_GLPI, $_GET;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -184,8 +99,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
            `glpi_reservations`.`reservationitems_id` = `glpi_reservationitems`.`id`
          ) 
         WHERE   
-         `groups_id` = $group_id                      
-         AND `glpi_computers`.`entities_id` = '0'
+         `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0'
          GROUP BY glpi_computers.id       
@@ -193,18 +107,23 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 
         if (count($query) > 0) {
             if (!$display_header) {
-                echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<br><table class='tab_cadre_fixehov' id='utilizationbymachines'>";
+                echo "<thead><tr>";
+                echo "<th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Utilization'). "</th>";
-                echo "</tr>";
+                echo "</tr></thead>";
+                echo "<tbody>";
                 $display_header = true;
             }
             displayUserDevices($itemtype, $query);
+        } else {
+            echo __('No computers found');
         }
      }
     }
    }
+   echo "</tbody>";
    echo "</table>";
 }
 
@@ -233,7 +152,7 @@ function displayUserDevices($type, $result) {
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
-         echo '&nbsp;';
+         echo "NA";
       }
 
       echo "</td><td class='center'>";
