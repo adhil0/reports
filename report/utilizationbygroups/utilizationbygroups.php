@@ -41,62 +41,12 @@ Html::header(__('utilizationbygroups_report_title', 'reports'), $_SERVER['PHP_SE
 
 Report::title();
 
-if (isset($_GET["reset_search"])) {
-   resetSearch();
-}
 $_GET = getValues($_GET, $_POST);
 
-displaySearchForm();
-
-$where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
-
-getObjectsbyEntity($_SESSION["glpiactive_entity"]);
+getObjectsbyEntity();
 
 
 Html::footer();
-
-
-/**
- * Display datetime form
- **/
-function displaySearchForm()
-{
-   global $_SERVER, $_GET;
-
-   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
-   echo "<table class='tab_cadre' cellpadding='5'>";
-   echo "<tr class='tab_bg_2'>";
-   echo "<div align='center'>";
-   echo "<td>" . __("<b>Begin date</b>") . "</td>";
-   echo "<td>";
-   Html::showDateField("date1", [
-      'value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
-      'maybeempty' => true
-   ]);
-   echo "</td>";
-   echo "<td>" . __("<b>End date</b>") . "</td>";
-   echo "<td>";
-   $date2 = date("Y-m-d");
-   Html::showDateField("date2", [
-      'value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
-      'maybeempty' => true
-   ]);
-   echo "</td>";
-   echo "</div>";
-   echo "</tr>";
-   // Display Reset search
-   echo "<td class='center' colspan='4'>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false) . "/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>" .
-      "Reset Search</a>";
-   echo "&nbsp;";
-   echo "&nbsp;";
-   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
-   echo "</td>";
-
-   echo "</table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of time each group has reserved its assets over a given time period.</div>";
-   Html::closeForm();
-}
 
 
 function getValues($get, $post)
@@ -114,22 +64,9 @@ function getValues($get, $post)
    return $get;
 }
 
-
-/**
- * Reset search
- **/
-function resetSearch()
-{
-   $secondsInMonth = 30 * 24 * 60 * 60;
-   $_GET["date1"] = date("Y-m-d", time() - $secondsInMonth);
-   $_GET["date2"] = date("Y-m-d");
-}
-
-
 /**
  * Display all devices by group
  *
- * @param $entity    the current entity
  **/
 function getObjectsbyEntity()
 {
@@ -174,19 +111,24 @@ function getObjectsbyEntity()
 
          if (count($query) > 0) {
             if (!$display_header) {
-               echo "<br><table class='tab_cadre_fixehov'>";
-               echo "<tr><th class='center'>" . __('Group') . "</th>";
+               echo "<br><table class='tab_cadre_fixehov' id='utilizationbygroups'>";
+               echo "<thead><tr>";
+               echo "<th class='center'>" . __('Group') . "</th>";
                echo "<th class='center'>" . __('# of Statically Assigned Machines') . "</th>";
                echo "<th class='center'>" . __('# of Reservable Machines') . "</th>";
                echo "<th class='center'>" . __('Utilization of Reservable Machines') . "</th>";
-               echo "</tr>";
+               echo "</tr></thead>";
+               echo "<tbody>";
                $display_header = true;
             }
             $groupData = calculateData($query);
             displayUserDevices($itemtype, $groupData);
+         } else {
+            echo __('No computers found');
          }
       }
    }
+   echo "</tbody>";
    echo "</table>";
 }
 
@@ -273,25 +215,25 @@ function displayUserDevices($type, $result)
             if (!empty($data["completename"])) {
                echo $data["completename"];
             } else {
-               echo '&nbsp;';
+               echo 'NA';
             }
             echo "</td><td class='center'>";
             if (isset($data["inactive_computers"])) {
                echo $data["inactive_computers"];
             } else {
-               echo '&nbsp;';
+               echo 'NA';
             }
             echo "</td><td class='center'>";
             if (isset($data["active_computers"])) {
                echo $data["active_computers"];
             } else {
-               echo '&nbsp;';
+               echo 'NA';
             }
             echo "</td><td class='center'>";
             if (isset($data["usage_percentage"])) {
                echo $data["usage_percentage"];
             } else {
-               echo '&nbsp;';
+               echo 'NA';
             }
             echo "</td></tr>";
          }

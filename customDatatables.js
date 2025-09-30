@@ -59,3 +59,11 @@ new DataTable('#allmachinesbygroups', {
 new DataTable('#utilizationbymachines', {
     pageLength: 5000,
 });
+
+new DataTable('#reservationsbygroups', {
+    pageLength: 5000,
+});
+
+new DataTable('#utilizationbygroups', {
+    pageLength: 5000,
+});

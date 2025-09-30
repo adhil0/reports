@@ -40,97 +40,15 @@ Html::header(__('reservationsbygroups_report_title', 'reports'), $_SERVER['PHP_S
 
 Report::title();
 
-if (isset ($_GET["reset_search"])) {
-   resetSearch();
-}
-$_GET = getValues($_GET, $_POST);
-
-displaySearchForm();
-
-$where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
-if (isset($_GET["groups_id"]) && $_GET["groups_id"]) {
-   $where = ['entities_id' => [$_SESSION["glpiactive_entity"]],
-             'id'          => $_GET['groups_id']];
-}
-
-$result = $DB->request('glpi_groups', ['SELECT' => ['id', 'name'],
-                                       'WHERE'  => $where,
-                                       'ORDER'  => 'name']);
-$last_group_id = -1;
-
-foreach ($result as $datas) {
-   if ($last_group_id != $datas["id"]) {
-      echo "<table class='tab_cadre' cellpadding='5'>";
-      echo "<tr><th>".sprintf(__('%1$s: %2$s'), __('Group'), $datas['name'])."</th></th></tr>";
-      $last_group_id = $datas["id"];
-      echo "</table>";
-   }
-
-   getObjectsByGroupAndEntity($datas["id"], $_SESSION["glpiactive_entity"]);
-}
+getObjectsByGroupAndEntity();
 
 Html::footer();
 
 
 /**
- * Display group form
-**/
-function displaySearchForm() {
-   global $_SERVER, $_GET, $CFG_GLPI;
-
-   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
-   echo "<table class='tab_cadre' cellpadding='5'>";
-   echo "<tr class='tab_bg_1 center'>";
-   echo "<td width='300'>";
-   echo __('Group')."&nbsp;&nbsp;";
-   Group::dropdown(['name =>'  => "group",
-                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
-                    'entity'   => $_SESSION["glpiactive_entity"],
-                    'condition' => ['is_itemgroup' => 1]]);
-   echo "</td>";
-
-   // Display Reset search
-   echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/reservationsbygroups/reservationsbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
-   "Reset Search</a>";
-   echo "</td>";
-
-   echo "<td>";
-   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
-   echo "</td>";
-
-   echo "</tr></table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the active reservations of each group.</div>";
-   Html::closeForm();
-}
-
-
-function getValues($get, $post) {
-
-   $get = array_merge($get, $post);
-
-   if (!isset ($get["group"])) {
-      $get["group"] = 0;
-   }
-   return $get;
-}
-
-
-/**
- * Reset search
-**/
-function resetSearch() {
-   $_GET["group"] = 0;
-}
-
-
-/**
  * Display all devices by group
- *
- * @param $group_id  the group ID
- * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id) {
+function getObjectsByGroupAndEntity() {
    global $DB, $CFG_GLPI;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -173,9 +91,8 @@ function getObjectsByGroupAndEntity($group_id) {
          ) AS `data` ON (glpi_computers.id = data.items_id)
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
-       WHERE   
-         `groups_id` = $group_id                           
-         AND `glpi_computers`.`entities_id` = '0'
+       WHERE
+         `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0'
          AND `begin` <= NOW()
@@ -183,8 +100,9 @@ function getObjectsByGroupAndEntity($group_id) {
 
         if (count($query) > 0) {
             if (!$display_header) {
-                echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<br><table class='tab_cadre_fixehov' id='reservationsbygroups'>";
+                echo "<thead><tr>";
+                echo "<th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
@@ -192,14 +110,18 @@ function getObjectsByGroupAndEntity($group_id) {
                 echo "<th class='center'>" .__('Reservation Comment'). "</th>";
                 echo "<th class='center'>" .__('Latest Reservation Start Date'). "</th>";
                 echo "<th class='center'>" .__('Latest Reservation End Date'). "</th>";
-                echo "</tr>";
+                echo "</tr></thead>";
+                echo "<tbody>";
                 $display_header = true;
             }
             displayUserDevices($itemtype, $query);
+        } else {
+            echo __('No computers found');
         }
      }
     }
    }
+   echo "</tbody>";
    echo "</table>";
 }
 
@@ -229,48 +151,48 @@ function displayUserDevices($type, $result) {
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["completename"]) && !empty ($data["completename"])) {
          echo $data["completename"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["computer_comment"]) && !empty ($data["computer_comment"])) {
          echo $data["computer_comment"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["realname"]) && !empty ($data["realname"]) && isset ($data["firstname"]) && !empty ($data["firstname"])) {
             echo $data["firstname"]." ".$data["realname"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["reservation_comment"]) && !empty ($data["reservation_comment"])) {
          echo $data["reservation_comment"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["begin"]) && !empty ($data["begin"])) {
          echo $data["begin"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
       echo "</td><td class='center'>";
       if (isset ($data["end"]) && !empty ($data["end"])) {
          echo $data["end"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
       echo "</td></tr>";
    }
