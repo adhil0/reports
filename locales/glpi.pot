@@ -360,3 +360,8 @@ msgstr ""
 #: report/zombies/zombies.php:45
 msgid "With no ticket"
 msgstr ""
+
+#. TRANS: The name of the report = Low Utilization and Telco Machines
+#: report/lowutilizationandtelco/lowutilizationandtelco.php:39
+msgid "lowutilizationandtelco_report_title"
+msgstr ""
