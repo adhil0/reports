@@ -40,97 +40,15 @@ Html::header(__('availablebygroups_report_title', 'reports'), $_SERVER['PHP_SELF
 
 Report::title();
 
-if (isset ($_GET["reset_search"])) {
-   resetSearch();
-}
-$_GET = getValues($_GET, $_POST);
+getObjectsByGroupAndEntity();
 
-displaySearchForm();
-
-$where = ['entities_id' => [$_SESSION["glpiactive_entity"]]];
-if (isset($_GET["groups_id"]) && $_GET["groups_id"]) {
-   $where = ['entities_id' => [$_SESSION["glpiactive_entity"]],
-             'id'          => $_GET['groups_id']];
-}
-
-$result = $DB->request('glpi_groups', ['SELECT' => ['id', 'name'],
-                                       'WHERE'  => $where,
-                                       'ORDER'  => 'name']);
-$last_group_id = -1;
-
-foreach ($result as $datas) {
-   if ($last_group_id != $datas["id"]) {
-      echo "<table class='tab_cadre' cellpadding='5'>";
-      echo "<tr><th>".sprintf(__('%1$s: %2$s'), __('Group'), $datas['name'])."</th></th></tr>";
-      $last_group_id = $datas["id"];
-      echo "</table>";
-   }
-
-   getObjectsByGroupAndEntity($datas["id"], $_SESSION["glpiactive_entity"]);
-}
 
 Html::footer();
 
-
-/**
- * Display group form
-**/
-function displaySearchForm() {
-   global $_SERVER, $_GET, $CFG_GLPI;
-
-   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
-   echo "<table class='tab_cadre' cellpadding='5'>";
-   echo "<tr class='tab_bg_1 center'>";
-   echo "<td width='300'>";
-   echo __('Group')."&nbsp;&nbsp;";
-   Group::dropdown(['name =>'  => "group",
-                    'value'    => isset($_GET["groups_id"]) ? $_GET["groups_id"] : 0,
-                    'entity'   => $_SESSION["glpiactive_entity"],
-                    'condition' => ['is_itemgroup' => 1]]);
-   echo "</td>";
-
-   // Display Reset search
-   echo "<td>";
-   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/availablebygroups/availablebygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
-   "Reset Search</a>";
-   echo "</td>";
-
-   echo "<td>";
-   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
-   echo "</td>";
-
-   echo "</tr></table>";
-   echo "<div class='alert alert-primary mt-3 text-center'>This report lists assets that are currently available for reservation, by group.</div>";
-   Html::closeForm();
-}
-
-
-function getValues($get, $post) {
-
-   $get = array_merge($get, $post);
-
-   if (!isset ($get["group"])) {
-      $get["group"] = 0;
-   }
-   return $get;
-}
-
-
-/**
- * Reset search
-**/
-function resetSearch() {
-   $_GET["group"] = 0;
-}
-
-
 /**
  * Display all devices by group
- *
- * @param $group_id  the group ID
- * @param $entity    the current entity
 **/
-function getObjectsByGroupAndEntity($group_id, $entity) {
+function getObjectsByGroupAndEntity() {
    global $DB, $CFG_GLPI;
    $display_header = false;
    foreach ($CFG_GLPI["asset_types"] as $key => $itemtype) {
@@ -144,14 +62,16 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
        $query = $DB->request("SELECT MAX(end) as `latest_reservation`,
          `glpi_computers`.`id`,
          `glpi_computers`.`name`,                                      
-         `groups_id`,                 
+         `glpi_groups`.`id` AS `groups_id`,                 
+         `glpi_groups`.`completename` AS `group_name`,            
          `serial`,
          `begin`,                                     
          `end`,
          `glpi_computers`.`comment` AS `computer_comment`,
-         `glpi_states`.`completename`               
+         `glpi_states`.`completename` AS `status`           
        FROM                     
-         `glpi_computers`                                           
+         `glpi_computers`    
+         LEFT JOIN glpi_groups ON glpi_computers.groups_id = glpi_groups.id                                       
          LEFT JOIN (                                  
            SELECT               
              `items_id`,              
@@ -167,8 +87,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
        WHERE   
-         `groups_id` = $group_id                            
-         AND `glpi_computers`.`entities_id` = '0'
+         `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
          AND `is_deleted` = '0' 
          AND glpi_computers.id IN (SELECT items_id from glpi_reservationitems)
@@ -179,13 +98,17 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
 
         if (count($query) > 0) {
             if (!$display_header) {
-                echo "<br><table class='tab_cadre_fixehov'>";
-                echo "<tr><th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<br><table class='tab_cadre_fixehov' id='availablebygroups'>";
+                echo "<thead><tr>";
+                echo "<th class='center'>" .__('Type'). "</th>";
+                echo "<th class='center'>" .__('Name'). "</th>";
+                echo "<th class='center'>" .__('Group'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
                 echo "<th class='center'>" .__('Reserved?')."</th>";
-                echo "</tr>";
+                echo "</tr></thead>";
+                echo "</tbody>";
                 $display_header = true;
             }
             displayUserDevices($itemtype, $query);
@@ -193,6 +116,7 @@ function getObjectsByGroupAndEntity($group_id, $entity) {
      }
     }
    }
+   echo "</tbody>";
    echo "</table>";
 }
 
@@ -215,28 +139,37 @@ function displayUserDevices($type, $result) {
                (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
                "</a>";
 
-      echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
-            "<td class='center'>$link</td>";
+      echo "<tr class='tab_bg_1'>";
+      echo "<td class='center'>".$item->getTypeName()."</td>";
+      echo "<td class='center'>$link</td>";
+
+
+      echo "<td class='center'>";
+      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
+         echo $data["group_name"];
+      } else {
+         echo 'NA';
+      }
 
       echo "<td class='center'>";
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["completename"]) && !empty ($data["completename"])) {
-         echo $data["completename"];
+      if (isset ($data["status"]) && !empty ($data["status"])) {
+         echo $data["status"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";
       if (isset ($data["computer_comment"]) && !empty ($data["computer_comment"])) {
          echo $data["computer_comment"];
       } else {
-         echo '&nbsp;';
+         echo 'NA';
       }
 
       echo "</td><td class='center'>";

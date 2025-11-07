@@ -94,4 +94,52 @@ new DataTable('#reservationsbygroups', {
 
 new DataTable('#utilizationbygroups', {
     pageLength: 5000,
+    layout: {
+        top1: 'searchPanes',
+    },
+    searchPanes: {
+        columns: [0], // Group Column
+        hideCount: true,
+    },
+    // Make sure Group column's filter is visible
+    columnDefs: [{
+        searchPanes: {
+            show: true
+        },
+        targets: [0]  // Group Column
+    }]
+});
+
+new DataTable('#nonreservablebygroups', {
+    pageLength: 5000,
+    layout: { 
+        top1: 'searchPanes',
+    },
+    searchPanes: {
+        columns: [2],  // Group Column
+        hideCount: true,
+    },
+
+    columnDefs: [{
+        searchPanes: {
+            show: true
+        },
+        targets: [2]}]  // Group Column
+});
+
+new DataTable('#availablebygroups', {
+    pageLength: 5000,
+    layout: { 
+        top1: 'searchPanes',
+    },
+    searchPanes: {
+        columns: [2],  // Group Column
+        hideCount: true,
+    },
+
+    columnDefs: [{
+        searchPanes: {
+            show: true
+        },
+        targets: [2]}]  // Group Column
 });
