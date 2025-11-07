@@ -62,14 +62,14 @@ function getObjectsByGroupAndEntity() {
                `glpi_computers`.`id`,
                `glpi_computers`.`name`,                                      
                `glpi_computers`.`groups_id` AS `group_id`,
-               `glpi_groups`.`name` AS `group_name`,
+               `glpi_groups`.`completename` AS `group_name`,
                `glpi_computers`.`serial`,
                `latest_res`.`begin`,                                     
                `latest_res`.`end`,
                `latest_res`.`end` AS `latest_reservation`,
                `latest_res`.`comment` AS `reservation_comment`, 
                `glpi_computers`.`comment` AS `computer_comment`,
-               `glpi_states`.`completename`,
+               `glpi_states`.`completename` AS `status`,
                `latest_users`.`realname`,
                `latest_users`.`firstname`                
             FROM `glpi_computers`
@@ -101,9 +101,9 @@ function getObjectsByGroupAndEntity() {
                if (!$display_header) {
                   echo "<br><table class='tab_cadre_fixehov' id='allmachinesbygroups'>";
                   echo "<thead><tr>";
-                  echo "<th class='center'>" .__('Group'). "</th>";
                   echo "<th class='center'>" .__('Type'). "</th>";
                   echo "<th class='center'>" .__('Name'). "</th>";
+                  echo "<th class='center'>" .__('Group'). "</th>";
                   echo "<th class='center'>" .__("Status"). "</th>";
                   echo "<th class='center'>" .__('Serial number'). "</th>";
                   echo "<th class='center'>" .__('Computer Comment'). "</th>";
@@ -141,15 +141,6 @@ function displayUserDevices($type, $result) {
    $item = new $type();
    foreach ($result as $data) {
       echo "<tr class='tab_bg_1'>";
-      
-      // Group column
-      echo "<td class='center'>";
-      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
-         echo $data["group_name"];
-      } else {
-         echo '';
-      }
-      echo "</td>";
 
       $link = $data["name"];
       $url  = Toolbox::getItemTypeFormURL("$type");
@@ -162,8 +153,16 @@ function displayUserDevices($type, $result) {
       echo "<td class='center'>$link</td>";
 
       echo "<td class='center'>";
-      if (isset ($data["completename"]) && !empty ($data["completename"])) {
-         echo $data["completename"];
+      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
+         echo $data["group_name"];
+      } else {
+         echo '';
+      }
+      echo "</td>";
+
+      echo "<td class='center'>";
+      if (isset ($data["status"]) && !empty ($data["status"])) {
+         echo $data["status"];
       } else {
          echo '';
       }
