@@ -60,13 +60,14 @@ function getObjectsByGroupAndEntity() {
       if ($item->isField('groups_id')) {
        $query = $DB->request("SELECT `glpi_computers`.`id`,
          `glpi_computers`.`name`,                                      
-         `groups_id`,                 
+         `glpi_groups`.`id` AS `groups_id`,                 
+         `glpi_groups`.`completename` AS `group_name`,
          `serial`,
          `begin`,                                     
          `end`,
          `data`.`comment` AS `reservation_comment`, 
          `glpi_computers`.`comment` AS `computer_comment`,
-         `glpi_states`.`completename`,
+         `glpi_states`.`completename` AS `status`,
 	      `data`.`realname`,
 	      `data`.`firstname`               
        FROM                     
@@ -89,6 +90,7 @@ function getObjectsByGroupAndEntity() {
              )
 
          ) AS `data` ON (glpi_computers.id = data.items_id)
+         LEFT JOIN glpi_groups ON glpi_computers.groups_id = glpi_groups.id
          LEFT JOIN glpi_states 
             ON glpi_computers.states_id = glpi_states.id
        WHERE
@@ -103,6 +105,7 @@ function getObjectsByGroupAndEntity() {
                 echo "<br><table class='tab_cadre_fixehov' id='reservationsbygroups'>";
                 echo "<thead><tr>";
                 echo "<th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<th class='center'>" .__('Group'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Status'). "</th>";
                 echo "<th class='center'>" .__('Computer Comment'). "</th>";
@@ -148,6 +151,15 @@ function displayUserDevices($type, $result) {
             "<td class='center'>$link</td>";
 
       echo "<td class='center'>";
+
+      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
+         echo $data["group_name"];
+      } else {
+         echo 'NA';
+      }
+      echo "</td>";
+
+      echo "<td class='center'>";
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
       } else {
@@ -155,8 +167,8 @@ function displayUserDevices($type, $result) {
       }
 
       echo "</td><td class='center'>";
-      if (isset ($data["completename"]) && !empty ($data["completename"])) {
-         echo $data["completename"];
+      if (isset ($data["status"]) && !empty ($data["status"])) {
+         echo $data["status"];
       } else {
          echo 'NA';
       }
