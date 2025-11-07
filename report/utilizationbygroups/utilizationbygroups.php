@@ -41,7 +41,12 @@ Html::header(__('utilizationbygroups_report_title', 'reports'), $_SERVER['PHP_SE
 
 Report::title();
 
+if (isset($_GET["reset_search"])) {
+   resetSearch();
+}
+
 $_GET = getValues($_GET, $_POST);
+displaySearchForm();
 
 getObjectsbyEntity();
 
@@ -63,6 +68,60 @@ function getValues($get, $post)
    }
    return $get;
 }
+
+
+/**
+ * Display datetime form
+ **/
+function displaySearchForm()
+{
+   global $_SERVER, $_GET;
+
+   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
+   echo "<table class='tab_cadre' cellpadding='5'>";
+   echo "<tr class='tab_bg_2'>";
+   echo "<div align='center'>";
+   echo "<td>" . __("<b>Begin date</b>") . "</td>";
+   echo "<td>";
+   Html::showDateField("date1", [
+      'value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
+      'maybeempty' => true
+   ]);
+   echo "</td>";
+   echo "<td>" . __("<b>End date</b>") . "</td>";
+   echo "<td>";
+   $date2 = date("Y-m-d");
+   Html::showDateField("date2", [
+      'value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
+      'maybeempty' => true
+   ]);
+   echo "</td>";
+   echo "</div>";
+   echo "</tr>";
+   // Display Reset search
+   echo "<td class='center' colspan='4'>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false) . "/report/utilizationbygroups/utilizationbygroups.php?reset_search=reset_search' class='btn btn-outline-secondary'>" .
+      "Reset Search</a>";
+   echo "&nbsp;";
+   echo "&nbsp;";
+   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
+   echo "</td>";
+
+   echo "</table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of time each group has reserved its assets over a given time period.</div>";
+   Html::closeForm();
+}
+
+/**
+ * Reset search
+ **/
+function resetSearch()
+{
+   $secondsInMonth = 30 * 24 * 60 * 60;
+   $_GET["date1"] = date("Y-m-d", time() - $secondsInMonth);
+   $_GET["date2"] = date("Y-m-d");
+}
+
 
 /**
  * Display all devices by group
