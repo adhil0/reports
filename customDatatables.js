@@ -58,6 +58,20 @@ new DataTable('#allmachinesbygroups', {
 
 new DataTable('#utilizationbymachines', {
     pageLength: 5000,
+    layout: {
+        top1: 'searchPanes',
+    },
+    searchPanes: {
+        columns: [2], // Group Column
+        hideCount: true,
+    },
+    // Make sure Group column's filter is visible
+    columnDefs: [{
+        searchPanes: {
+            show: true
+        },
+        targets: [2]  // Group Column
+    }]
 });
 
 new DataTable('#reservationsbygroups', {

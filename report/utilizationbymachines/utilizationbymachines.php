@@ -39,20 +39,31 @@ includeLocales("utilizationbymachines");
 Html::header(__('utilizationbymachines_report_title', 'reports'), $_SERVER['PHP_SELF'], "utils", "report");
 
 Report::title();
+
+if (isset ($_GET["reset_search"])) {
+   resetSearch();
+}
+
 $_GET = getValues($_GET, $_POST);
+displaySearchForm();
 getObjectsByGroupAndEntity();
 
 Html::footer();
 
 
 
+/**
+ * Reset search
+**/
+function resetSearch() {
+   $_GET["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
+   $_GET["date2"] = date("Y-m-d");
+}
+
+
 function getValues($get, $post) {
 
    $get = array_merge($get, $post);
-
-   if (!isset ($get["group"])) {
-      $get["group"] = 0;
-   }
 
    if (!isset ($get["date1"])) {
       $get["date1"] = date("Y-m-d", time() - (30 * 24 * 60 * 60));
@@ -64,6 +75,42 @@ function getValues($get, $post) {
    return $get;
 }
 
+/**
+ * Display group form
+**/
+function displaySearchForm() {
+   global $_SERVER, $_GET;
+
+   echo "<form action='" . $_SERVER["PHP_SELF"] . "' method='post'>";
+   echo "<table class='tab_cadre' cellpadding='5'>";
+
+   echo "<tr class='tab_bg_2'>";
+   echo "<div align='center'>";
+   echo "<td>".__("<b>Begin date</b>")."</td>";
+   echo "<td>";
+   Html::showDateField("date1", ['value'      =>  isset($_GET["date1"]) ? $_GET["date1"] : date("Y-m-d", time() - (30 * 24 * 60 * 60)),
+                                 'maybeempty' => true]);
+   echo "</td>";
+   echo "<td>".__("<b>End date</b>")."</td>";
+   echo "<td>";
+   Html::showDateField("date2", ['value'      =>  isset($_GET["date2"]) ? $_GET["date2"] : date("Y-m-d"),
+                                 'maybeempty' => true]);
+   echo "</td>";
+   echo "</div>";
+   echo "</tr>";
+   // Display Reset search
+   echo "<td class='center' colspan='4'>";
+   echo "<a href='" . Plugin::getPhpDir('reports', $full = false)."/report/utilizationbymachines/utilizationbymachines.php?reset_search=reset_search' class='btn btn-outline-secondary'>".
+   "Reset Search</a>";
+   echo "&nbsp;";
+   echo "&nbsp;";
+   echo Html::submit('Submit', ['value' => 'Valider', 'class' => 'btn btn-primary']);
+   echo "</td>";
+
+   echo "</tr></table>";
+   echo "<div class='alert alert-primary mt-3 text-center'>This report lists the proportion of time each asset has been reserved for over a given time period, by group.</div>";
+   Html::closeForm();
+}
 
 /**
  * Display all devices by group
@@ -80,7 +127,8 @@ function getObjectsByGroupAndEntity() {
       if ($item->isField('groups_id')) {
        $query = $DB->request("SELECT   `glpi_computers`.`id`,
          `glpi_computers`.`name`,                                      
-         `groups_id`,                 
+         `glpi_groups`.`id` AS `groups_id`,
+         `glpi_groups`.`completename` AS `group_name`,                 
          `serial`,
          `glpi_reservations`.`begin`,                                     
          `glpi_reservations`.`end`,
@@ -97,7 +145,8 @@ function getObjectsByGroupAndEntity() {
          )
          LEFT JOIN `glpi_reservations` ON (
            `glpi_reservations`.`reservationitems_id` = `glpi_reservationitems`.`id`
-         ) 
+         )
+         LEFT JOIN `glpi_groups` ON `glpi_computers`.`groups_id` = `glpi_groups`.`id`
         WHERE   
          `glpi_computers`.`entities_id` = '0'
          AND `is_template` = '0'
@@ -109,7 +158,9 @@ function getObjectsByGroupAndEntity() {
             if (!$display_header) {
                 echo "<br><table class='tab_cadre_fixehov' id='utilizationbymachines'>";
                 echo "<thead><tr>";
-                echo "<th class='center'>" .__('Type'). "</th><th class='center'>" .__('Name'). "</th>";
+                echo "<th class='center'>" .__('Type'). "</th>";
+                echo "<th class='center'>" .__('Name'). "</th>";
+                echo "<th class='center'>" .__('Group'). "</th>";
                 echo "<th class='center'>" .__('Serial number'). "</th>";
                 echo "<th class='center'>" .__('Utilization'). "</th>";
                 echo "</tr></thead>";
@@ -145,9 +196,16 @@ function displayUserDevices($type, $result) {
                (($CFG_GLPI["is_ids_visible"] || empty ($link)) ? " (" . $data["groups_id"] . ")" : "") .
                "</a>";
 
-      echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>".
-            "<td class='center'>$link</td>";
+      echo "<tr class='tab_bg_1'><td class='center'>".$item->getTypeName()."</td>";
+      echo "<td class='center'>$link</td>";
 
+      echo "<td class='center'>";
+      if (isset ($data["group_name"]) && !empty ($data["group_name"])) {
+         echo $data["group_name"];
+      } else {
+         echo "NA";
+      }
+      echo "</td>";
       echo "<td class='center'>";
       if (isset ($data["serial"]) && !empty ($data["serial"])) {
          echo $data["serial"];
