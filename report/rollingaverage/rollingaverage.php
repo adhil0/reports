@@ -270,9 +270,9 @@ function calculateData($result)
       }
 
    }
-   $averageData['total']['Total Average'] = number_format($averageData['total']['Total Sum']/$non_na_groups, 1). "%";
+   $averageData['total']['Total Average'] = $non_na_groups > 0 ? number_format($averageData['total']['Total Sum']/$non_na_groups, 1). "%" : "NA";
    $averageData['total']['Weighted Average'] = number_format(fdiv($averageData['total']['Weighted Sum'],$averageData['total']['active_computers'])*100, 1). "%";
-   $averageData['total']['Total RAN Average'] = number_format($averageData['total']['Total RAN Sum']/$ran_group_count, 1). "%";
+   $averageData['total']['Total RAN Average'] = $ran_group_count > 0 ? number_format($averageData['total']['Total RAN Sum']/$ran_group_count, 1). "%" : "NA";
    $averageData['total']['Weighted RAN Average'] = number_format(fdiv($averageData['total']['Weighted RAN Sum'],$averageData['total']['ran_active_computers'])*100, 1). "%";
    return $averageData;
 }
